@@ -11,11 +11,16 @@
     <string name="disconnected">DISCONNECTED</string>
     <string name="xml_calib">First, we need to calibrate your Muse headband.</string>
     <string name="xml_start_calib">Start calibration</string>
+    <string name="return_prev">Return to the previous page</string>
 
     <string name="nothing">There is nothing to connect to.</string>
     <string name="toast_disconnect_exception">The mobile isn\'t connected to any device!</string>
     <string name="toast_start_exception_not_co">You have to connect to a Muse headband!</string>
     <string name="toast_start_exception_not_ca">You have to calibrate your Muse headband!</string>
+
+    <string name="calibSuccessT">Calibration complete!</string>
+    <string name="calibSuccessM">You can now start visualising your mindset, if you wish!</string>
+    <string name="ok">OK</string>
 
     <string name="permission_dialog_title">Muse Needs Your Permission</string>
     <string name="permission_dialog_description">Muse needs a few permissions to work properly. On the next screens, tap "Allow" to proceed. If you deny, Muse will not work properly until you go into your Android settings and allow.</string>

@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -68,16 +69,23 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     Spinner spinner;
     TextView status;
 
+    private boolean calibrated;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Bundle b = getIntent().getExtras();
+        calibrated = b.getBoolean("calib");
+
         // Assign click event listener to buttons
         findViewById(R.id.scan).setOnClickListener(this);
         findViewById(R.id.connect).setOnClickListener(this);
-        //findViewById(R.id.disconnect).setOnClickListener(this);
+        findViewById(R.id.disconnect).setOnClickListener(this);
         //findViewById(R.id.pause).setOnClickListener(this);
+        findViewById(R.id.calib).setOnClickListener(this);
+        findViewById(R.id.start).setOnClickListener(this);
 
         // Initialize spinner
         spinnerAdapter = new ArrayAdapter<>(ConnectionActivity.this, android.R.layout.simple_spinner_item);
@@ -146,16 +154,19 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
             }
 
         }
-        /*
+
         else if (v.getId() == R.id.disconnect) {
 
             // The user has pressed the "Disconnect" button.
             // Disconnect from the selected Muse.
             if (muse != null) {
                 muse.disconnect();
+            } else {
+                Toast.makeText(getApplicationContext(), R.string.toast_disconnect_exception, Toast.LENGTH_SHORT).show();
             }
 
         }
+        /*
         else if (v.getId() == R.id.pause) {
 
             // The user has pressed the "Pause/Resume" button to either pause or
@@ -167,6 +178,34 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
             }
         }
         */
+        else if (v.getId() == R.id.calib) {
+
+            // The user has pressed the "Calibration" button.
+            // We must verify that the device is connected to a Muse device before starting the calibration.
+            // If the device is connected, then we can switch to the calibration activity.
+            /*if (muse != null) {
+                startActivity(new Intent(ConnectionActivity.this, CalibrationActivity.class));
+            } else {
+                Toast.makeText(getApplicationContext(), "You can't calibrate the Muse headband if you're not connected to it!", Toast.LENGTH_SHORT).show();
+            }*/
+            // TODO: to remove later of course, this is just for the sake of testing
+            startActivity(new Intent(ConnectionActivity.this, CalibrationActivity.class));
+
+        }
+        else if (v.getId() == R.id.start) {
+
+            // The user has pressed the "Start" button.
+            // Before starting the visualisation, the Muse headband must be both connected to the device and be calibrated.
+            /*if (muse == null) {
+                Toast.makeText(getApplicationContext(), R.string.toast_start_exception_not_co, Toast.LENGTH_SHORT).show();
+            } else if (calibrated == false) {
+                Toast.makeText(getApplicationContext(), R.string.toast_start_exception_not_ca, Toast.LENGTH_SHORT).show();
+            } else {
+                startActivity(new Intent(ConnectionActivity.this, VisualActivity.class));
+            }*/
+            // TODO: to remove later of course, this is just for the sake of testing
+            startActivity(new Intent(ConnectionActivity.this, VisualActivity.class));
+        }
     }
 
 

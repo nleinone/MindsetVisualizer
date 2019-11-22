@@ -26,14 +26,14 @@ public class StartActivity extends AppCompatActivity {
     private Button startBtn;
 
     @Override
-    protected void onStart() {
+    protected void onStart() { // for the moment, the use of firebase is causing problems so I'm commenting it because I can't work on the app otherwise aha
         super.onStart();
-        //mAuth.addAuthStateListener(authListener);
+        /*mAuth.addAuthStateListener(authListener);
         //Check if user is logged in, if so, open menuactivity, otherwise do nothing
-        //if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-        //    System.out.println("Login test print 1");
-        //    finish();
-        //}
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            System.out.println("Login test print 1");
+            finish();
+        }*/
     }
 
     @Override
@@ -53,7 +53,7 @@ public class StartActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         //FIREBASE ANON AUTHENTICATION CREATION:
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        /*FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
         mAuth.signInAnonymously()
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -63,7 +63,7 @@ public class StartActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             //Log.d(TAG, "signInAnonymously:success");
                             //FirebaseUser user = mAuth.getCurrentUser();
-                            Toast.makeText(StartActivity.this, "Authentication success.",
+                            Toast.makeText(StartActivity.this, "Authentication successful.",
                                     Toast.LENGTH_SHORT).show();
 
                             //updateUI(user);
@@ -77,7 +77,7 @@ public class StartActivity extends AppCompatActivity {
 
                         // ...
                     }
-                });
+                });*/
 
         startBtn = findViewById(R.id.startBtn);
         //System.out.println("Login test print 4");
@@ -86,7 +86,9 @@ public class StartActivity extends AppCompatActivity {
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(StartActivity.this, ConnectionActivity.class));
+                Intent i = new Intent(StartActivity.this, ConnectionActivity.class);
+                i.putExtra("calib", false); // the connection activity will look for an extra, which is the calibrated state (either true or false) so we will put it to false here since the headband is yet to be calibrated
+                startActivity(i);
             }
         });
     }

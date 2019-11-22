@@ -18,14 +18,13 @@
         <activity android:name=".VisualActivity" />
         <activity android:name=".CalibrationActivity" />
         <activity android:name=".TutorialActivity" />
-        <activity android:name=".StartActivity" />
-        <activity android:name=".ConnectionActivity">
+        <activity android:name=".StartActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            </intent-filter> </activity>
+        <activity android:name=".ConnectionActivity"/>
     </application>
 
 </manifest>

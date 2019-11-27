@@ -326,9 +326,14 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                     double aux_l = p.getEegChannelValue(Eeg.AUX_LEFT);
                     double aux_r = p.getEegChannelValue(Eeg.AUX_RIGHT);
 
-                    
-                    Log.d(TAG, "EEG: " + eeg1 + " " + eeg2 + " " + eeg3
-                            + " " + eeg4 + " " + aux_l + " " + aux_r);
+                    int counter = 0;
+                    Log.d(TAG, "EEG test: " + counter);
+                    int average_eeg = (eeg1 + eeg2 + eeg2 + eeg3 + eeg4)/(4)
+                    //Log.d(TAG, "EEG: " + eeg1 + " " + eeg2 + " " + eeg3
+                    //        + " " + eeg4 + " " + aux_l + " " + aux_r);
+
+                    Log.d(TAG, "Average EEG: " + average_eeg);
+
                     break;
                 case ACCELEROMETER:
                     // Do something here

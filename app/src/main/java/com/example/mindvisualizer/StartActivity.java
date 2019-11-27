@@ -52,6 +52,43 @@ public class StartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        /*
+        import com.google.firebase.auth.AuthResult;
+        import com.google.firebase.auth.FirebaseAuth;
+        import com.google.firebase.auth.FirebaseUser;
+        import com.google.firebase.database.DataSnapshot;
+        import com.google.firebase.database.DatabaseError;
+        import com.google.firebase.database.DatabaseReference;
+        import com.google.firebase.database.FirebaseDatabase;
+        import com.google.firebase.database.ValueEventListener;
+        From Niko's Archives:
+        //Check if user is logged in, if so, open menuactivity, otherwise do nothing
+
+        //Check if there is account created.
+        //FIREBASE AUTH:
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = mAuth.getCurrentUser();
+        String UserID = user.getUid();
+
+        //if(!(UserID.isEmpty())){
+        //    startActivity(new Intent(MainActivity.this, LobbyActivity.class));
+        //}
+
+        //FIREBASE DATABASE:
+        FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference eegDataRef = mFirebaseDatabase.getReference().child(UserID).child("EEG");
+
+        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+        String mUserId = currentFirebaseUser.getUid();
+
+        //DEBUG STAFF
+        System.out.println("user ID: " + mUserId);
+        System.out.println("Login test print 3");
+
+        startBtn = findViewById(R.id.startBtn);
+        System.out.println("Login test print 4");
+         */
+
         //FIREBASE ANON AUTHENTICATION CREATION:
         /*FirebaseAuth mAuth = FirebaseAuth.getInstance();
 

@@ -1,5 +1,6 @@
 package com.example.mindvisualizer;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -29,6 +30,9 @@ import com.choosemuse.libmuse.MuseDataPacket;
 import com.choosemuse.libmuse.MuseDataPacketType;
 import com.choosemuse.libmuse.MuseListener;
 import com.choosemuse.libmuse.MuseManagerAndroid;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
@@ -303,6 +307,8 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     };
 
 
+
+
     // DataListener is how you will receive EEG (and other) data from the headband
     private MuseDataListener dataListener = new MuseDataListener() {
 
@@ -328,7 +334,20 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
 
                     int counter = 0;
                     Log.d(TAG, "EEG test: " + counter);
-                    int average_eeg = (eeg1 + eeg2 + eeg2 + eeg3 + eeg4)/(4)
+                    //int average_eeg = (eeg1 + eeg2 + eeg2 + eeg3 + eeg4)/(4);
+                    String average_eeg = "nijar";
+                    FirebaseDatabase.getInstance().getReference().child("avgeeg").setValue(average_eeg)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()) {
+                                        Toast.makeText(ConnectionActivity.this, "Data added", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(ConnectionActivity.this, "Not successful", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+
                     //Log.d(TAG, "EEG: " + eeg1 + " " + eeg2 + " " + eeg3
                     //        + " " + eeg4 + " " + aux_l + " " + aux_r);
 

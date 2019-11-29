@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,6 +35,10 @@ public class StartActivity extends AppCompatActivity {
             System.out.println("Login test print 1");
             finish();
         }*/
+
+
+
+
     }
 
     @Override
@@ -126,6 +131,26 @@ public class StartActivity extends AppCompatActivity {
                 Intent i = new Intent(StartActivity.this, ConnectionActivity.class);
                 i.putExtra("calib", false); // the connection activity will look for an extra, which is the calibrated state (either true or false) so we will put it to false here since the headband is yet to be calibrated
                 startActivity(i);
+
+                int average_eeg = 2;
+                FirebaseDatabase.getInstance().getReference().child("avgeeg").setValue(average_eeg)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if(task.isSuccessful()) {
+                                    Toast.makeText(StartActivity.this, "Data added", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(StartActivity.this, "Not successful", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+
+
+
+
+
+
+
             }
         });
     }

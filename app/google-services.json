@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "910546755547",
+    "firebase_url": "https://mindvisualizer-e7ee8.firebaseio.com",
+    "project_id": "mindvisualizer-e7ee8",
+    "storage_bucket": "mindvisualizer-e7ee8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:910546755547:android:f54f89ff70cd0372e6d1fe",
+        "android_client_info": {
+          "package_name": "com.example.mindvisualizer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "910546755547-soci4lp68eafqpurar0kpls461cjo882.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mindvisualizer",
+            "certificate_hash": "ad6245847f32e6e32c194eae6e7b6f0d0072e57b"
+          }
+        },
+        {
+          "client_id": "910546755547-k9p1b028ftn4782acp3e03er766poamn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2duAS1uFsVUJ4l_eJjmnkTCDaZbKaIho"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "910546755547-k9p1b028ftn4782acp3e03er766poamn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

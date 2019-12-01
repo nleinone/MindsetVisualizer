@@ -89,4 +89,16 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/avgEEGTitleConn"
+        android:layout_width="195dp"
+        android:layout_height="wrap_content"
+        android:text="avgerage EEG:" />
+
+    <TextView
+        android:id="@+id/avgEEGTextConn"
+        android:layout_width="197dp"
+        android:layout_height="wrap_content"
+        android:text="0" />
+
 </LinearLayout>

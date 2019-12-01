@@ -139,7 +139,6 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
             } else {
                 // Cache the Muse that the user has selected.
                 muse = availableMuses.get(spinner.getSelectedItemPosition());
-
                 // Unregister all prior listeners and register our data listener to
                 // receive the MuseDataPacketTypes we are interested in.  If you do
                 // not register a listener for a particular data type, you will not
@@ -334,24 +333,8 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
 
                     int counter = 0;
                     Log.d(TAG, "EEG test: " + counter);
-                    //int average_eeg = (eeg1 + eeg2 + eeg2 + eeg3 + eeg4)/(4);
-                    String average_eeg = "nijar";
-                    FirebaseDatabase.getInstance().getReference().child("avgeeg").setValue(average_eeg)
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()) {
-                                        Toast.makeText(ConnectionActivity.this, "Data added", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(ConnectionActivity.this, "Not successful", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
-
                     //Log.d(TAG, "EEG: " + eeg1 + " " + eeg2 + " " + eeg3
                     //        + " " + eeg4 + " " + aux_l + " " + aux_r);
-
-                    Log.d(TAG, "Average EEG: " + average_eeg);
 
                     break;
                 case ACCELEROMETER:

@@ -34,6 +34,8 @@ import java.util.List;
 
 public class ConnectionActivity extends AppCompatActivity implements View.OnClickListener {
 
+    //Eeg value update init variable
+
     /**
      * Tag used for logging purposes.
      */
@@ -68,8 +70,17 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     // UI elements
     Spinner spinner;
     TextView status;
-
+    int eegSnapShotCounter = 0;
     private boolean calibrated;
+
+
+    public void UpdateEEGValue(String text)
+    {
+        TextView tv = findViewById(R.id.avgEEGTextConn);
+        Log.d(TAG, "TextView Found");
+        tv.setText(text);
+        Log.d(TAG, "TextView set");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -325,10 +336,30 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                     double aux_l = p.getEegChannelValue(Eeg.AUX_LEFT);
                     double aux_r = p.getEegChannelValue(Eeg.AUX_RIGHT);
 
-                    int counter = 0;
-                    Log.d(TAG, "EEG test: " + counter);
-                    //Log.d(TAG, "EEG: " + eeg1 + " " + eeg2 + " " + eeg3
-                    //        + " " + eeg4 + " " + aux_l + " " + aux_r);
+                    double avgEEGValue = ((eeg1 + eeg2 + eeg3 + eeg4) / 4);
+
+                    eegSnapShotCounter += 1;
+                    //Muse eeg data is updated roughly 3 times every 1 millisecond. This is just an estimate without any specific calculations.
+                    int timeRate = 1000;
+
+                    if (eegSnapShotCounter == timeRate)
+                    {
+                        Log.d(TAG, "EEG average: " + avgEEGValue);
+                        //Log.d(TAG, "EEG: " + eeg1 + " " + eeg2 + " " + eeg3
+                        //        + " " + eeg4 + " " + aux_l + " " + aux_r);
+                        eegSnapShotCounter = 0;
+
+                        //Update EEG value to all activities it is used. Right now only shown in visual activity, and the data collections starts when the Muse is connected.
+                        //Check if VisualActivity exists (The activity is opened once)
+
+                        String avgEEGValueString = Double.toString(avgEEGValue);
+
+                        UpdateEEGValue(avgEEGValueString);
+                        //Intent intent = new Intent(getBaseContext(), VisualActivity.class);
+                        //intent.putExtra("AVERAGE_EEG_VALUE", avgEEGValueString);
+
+                    }
+
 
                     break;
                 case ACCELEROMETER:
@@ -337,7 +368,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                     double x = p.getAccelerometerValue(Accelerometer.X);
                     double y = p.getAccelerometerValue(Accelerometer.Y);
                     double z = p.getAccelerometerValue(Accelerometer.Z);
-                    Log.d(TAG, "Accelerometer: " + x + " " + y + " " + z);
+                    //Log.d(TAG, "Accelerometer: " + x + " " + y + " " + z);
                     break;
                 case ALPHA_RELATIVE:
                 case BATTERY:
@@ -352,4 +383,5 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         public void receiveMuseArtifactPacket(MuseArtifactPacket museArtifactPacket, Muse muse) {
         }
     };
+
 }

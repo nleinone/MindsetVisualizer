@@ -5,6 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+
+
+
+
 public class VisualActivity extends AppCompatActivity {
 
     @Override
@@ -13,7 +17,11 @@ public class VisualActivity extends AppCompatActivity {
         setContentView(R.layout.activity_visual);
 
         int color_change_variable = 0;
+
+        //Update eegValue, see reference at EegValueUpdater
+
         TextView picture1 = findViewById(R.id.picture1);
+
         if(color_change_variable == 0)
         {
             //Do something

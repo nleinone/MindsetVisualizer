@@ -77,13 +77,104 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     int eegSnapShotCounter = 0;
     private boolean calibrated;
 
-
     public void UpdateEEGValue(String text)
     {
         TextView tv = findViewById(R.id.avgEEGTextConn);
         Log.d(TAG, "TextView Found");
         tv.setText(text);
         Log.d(TAG, "TextView set");
+    }
+
+    public void ConnectAndStreamMuseData(List<Muse> availableMuses)
+    {
+        MuseDataListener dataListener = new MuseDataListener() {
+
+            /**
+             * You will receive a callback to this method each time the headband sends a MuseDataPacket
+             * that you have registered.  You can use different listeners for different packet types or
+             * a single listener for all packet types as we have done here.
+             * @param p     The data packet containing the data from the headband (eg. EEG data)
+             * @param muse  The headband that sent the information.
+             */
+        @Override
+        public void receiveMuseDataPacket(MuseDataPacket p, Muse muse) {
+            switch (p.packetType()) {
+                case EEG:
+                    // Do something here
+
+                    double eeg1 = p.getEegChannelValue(Eeg.EEG1);
+                    double eeg2 = p.getEegChannelValue(Eeg.EEG2);
+                    double eeg3 = p.getEegChannelValue(Eeg.EEG3);
+                    double eeg4 = p.getEegChannelValue(Eeg.EEG4);
+                    double aux_l = p.getEegChannelValue(Eeg.AUX_LEFT);
+                    double aux_r = p.getEegChannelValue(Eeg.AUX_RIGHT);
+
+                    double avgEEGValue = ((eeg1 + eeg2 + eeg3 + eeg4) / 4);
+
+                    eegSnapShotCounter += 1;
+                    //Muse eeg data is updated roughly 3 times every 1 millisecond. This is just an estimate without any specific calculations.
+                    int timeRate = 1000;
+
+                    if (eegSnapShotCounter == timeRate)
+                    {
+                        Log.d(TAG, "EEG average: " + avgEEGValue);
+                        //Log.d(TAG, "EEG: " + eeg1 + " " + eeg2 + " " + eeg3
+                        //        + " " + eeg4 + " " + aux_l + " " + aux_r);
+                        eegSnapShotCounter = 0;
+
+                        //Update EEG value to all activities it is used. Right now only shown in visual activity, and the data collections starts when the Muse is connected.
+                        //Check if VisualActivity exists (The activity is opened once)
+
+                        String avgEEGValueString = Double.toString(avgEEGValue);
+
+                        UpdateEEGValue(avgEEGValueString);
+                        //Intent intent = new Intent(getBaseContext(), VisualActivity.class);
+                        //intent.putExtra("AVERAGE_EEG_VALUE", avgEEGValueString);
+
+                    }
+
+
+                    break;
+                case ACCELEROMETER:
+                    // Do something here
+
+                    double x = p.getAccelerometerValue(Accelerometer.X);
+                    double y = p.getAccelerometerValue(Accelerometer.Y);
+                    double z = p.getAccelerometerValue(Accelerometer.Z);
+                    //Log.d(TAG, "Accelerometer: " + x + " " + y + " " + z);
+                    break;
+                case ALPHA_RELATIVE:
+                case BATTERY:
+                case DRL_REF:
+                case QUANTIZATION:
+                default:
+                    break;
+            }
+        }
+
+        @Override
+        public void receiveMuseArtifactPacket(MuseArtifactPacket museArtifactPacket, Muse muse) {
+        }
+    };
+
+        // Cache the Muse that the user has selected.
+        muse = availableMuses.get(spinner.getSelectedItemPosition());
+        // Unregister all prior listeners and register our data listener to
+        // receive the MuseDataPacketTypes we are interested in.  If you do
+        // not register a listener for a particular data type, you will not
+        // receive data packets of that type.
+        muse.unregisterAllListeners();
+        muse.registerConnectionListener(connectionListener);
+        muse.registerDataListener(dataListener, MuseDataPacketType.EEG);
+        muse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_RELATIVE);
+        muse.registerDataListener(dataListener, MuseDataPacketType.ACCELEROMETER);
+        muse.registerDataListener(dataListener, MuseDataPacketType.BATTERY);
+        muse.registerDataListener(dataListener, MuseDataPacketType.DRL_REF);
+        muse.registerDataListener(dataListener, MuseDataPacketType.QUANTIZATION);
+
+        // Initiate a connection to the headband and stream the data asynchronously.
+        muse.runAsynchronously();
+        
     }
 
     @Override
@@ -148,23 +239,9 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                 Toast.makeText(getApplicationContext(), R.string.nothing, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "There is nothing to connect to");
             } else {
-                // Cache the Muse that the user has selected.
-                muse = availableMuses.get(spinner.getSelectedItemPosition());
-                // Unregister all prior listeners and register our data listener to
-                // receive the MuseDataPacketTypes we are interested in.  If you do
-                // not register a listener for a particular data type, you will not
-                // receive data packets of that type.
-                muse.unregisterAllListeners();
-                muse.registerConnectionListener(connectionListener);
-                muse.registerDataListener(dataListener, MuseDataPacketType.EEG);
-                muse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_RELATIVE);
-                muse.registerDataListener(dataListener, MuseDataPacketType.ACCELEROMETER);
-                muse.registerDataListener(dataListener, MuseDataPacketType.BATTERY);
-                muse.registerDataListener(dataListener, MuseDataPacketType.DRL_REF);
-                muse.registerDataListener(dataListener, MuseDataPacketType.QUANTIZATION);
 
-                // Initiate a connection to the headband and stream the data asynchronously.
-                muse.runAsynchronously();
+                ConnectAndStreamMuseData(availableMuses);
+
             }
 
         }
@@ -180,7 +257,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
             }
 
         }
-        /*
+
         else if (v.getId() == R.id.pause) {
 
             // The user has pressed the "Pause/Resume" button to either pause or
@@ -191,7 +268,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                 muse.enableDataTransmission(dataTransmission);
             }
         }
-        */
+
         else if (v.getId() == R.id.calib) {
 
             // The user has pressed the "Calibration" button.
@@ -289,7 +366,6 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         }
     };
 
-
     // ConnectionListener will be notified whenever there is a change in the connection
     // state of a headband, for example when the headband connects or disconnects
     private MuseConnectionListener connectionListener = new MuseConnectionListener() {
@@ -320,74 +396,6 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
 
 
     // DataListener is how you will receive EEG (and other) data from the headband
-    private MuseDataListener dataListener = new MuseDataListener() {
 
-        /**
-         * You will receive a callback to this method each time the headband sends a MuseDataPacket
-         * that you have registered.  You can use different listeners for different packet types or
-         * a single listener for all packet types as we have done here.
-         * @param p     The data packet containing the data from the headband (eg. EEG data)
-         * @param muse  The headband that sent the information.
-         */
-        @Override
-        public void receiveMuseDataPacket(MuseDataPacket p, Muse muse) {
-            switch (p.packetType()) {
-                case EEG:
-                    // Do something here
-
-                    double eeg1 = p.getEegChannelValue(Eeg.EEG1);
-                    double eeg2 = p.getEegChannelValue(Eeg.EEG2);
-                    double eeg3 = p.getEegChannelValue(Eeg.EEG3);
-                    double eeg4 = p.getEegChannelValue(Eeg.EEG4);
-                    double aux_l = p.getEegChannelValue(Eeg.AUX_LEFT);
-                    double aux_r = p.getEegChannelValue(Eeg.AUX_RIGHT);
-
-                    double avgEEGValue = ((eeg1 + eeg2 + eeg3 + eeg4) / 4);
-
-                    eegSnapShotCounter += 1;
-                    //Muse eeg data is updated roughly 3 times every 1 millisecond. This is just an estimate without any specific calculations.
-                    int timeRate = 1000;
-
-                    if (eegSnapShotCounter == timeRate)
-                    {
-                        Log.d(TAG, "EEG average: " + avgEEGValue);
-                        //Log.d(TAG, "EEG: " + eeg1 + " " + eeg2 + " " + eeg3
-                        //        + " " + eeg4 + " " + aux_l + " " + aux_r);
-                        eegSnapShotCounter = 0;
-
-                        //Update EEG value to all activities it is used. Right now only shown in visual activity, and the data collections starts when the Muse is connected.
-                        //Check if VisualActivity exists (The activity is opened once)
-
-                        String avgEEGValueString = Double.toString(avgEEGValue);
-
-                        UpdateEEGValue(avgEEGValueString);
-                        //Intent intent = new Intent(getBaseContext(), VisualActivity.class);
-                        //intent.putExtra("AVERAGE_EEG_VALUE", avgEEGValueString);
-
-                    }
-
-
-                    break;
-                case ACCELEROMETER:
-                    // Do something here
-
-                    double x = p.getAccelerometerValue(Accelerometer.X);
-                    double y = p.getAccelerometerValue(Accelerometer.Y);
-                    double z = p.getAccelerometerValue(Accelerometer.Z);
-                    //Log.d(TAG, "Accelerometer: " + x + " " + y + " " + z);
-                    break;
-                case ALPHA_RELATIVE:
-                case BATTERY:
-                case DRL_REF:
-                case QUANTIZATION:
-                default:
-                    break;
-            }
-        }
-
-        @Override
-        public void receiveMuseArtifactPacket(MuseArtifactPacket museArtifactPacket, Muse muse) {
-        }
-    };
 
 }

@@ -22,6 +22,20 @@
     <string name="calibSuccessM">You can now start visualising your mindset, if you wish!</string>
     <string name="ok">OK</string>
 
+    <string name="eegString1">EEG Channel 1</string>
+    <string name="eegString2">EEG Channel 2</string>
+    <string name="eegString3">EEG Channel 3</string>
+    <string name="eegString4">EEG Channel 4</string>
+    <string name="eegStringAuxL">EEG Channel 5</string>
+    <string name="eegStringAuxR">EEG Channel 6</string>
+
+    <string name="eegString1Out">EEG Channel 1 Output</string>
+    <string name="eegString2Out">EEG Channel 2 Output</string>
+    <string name="eegString3Out">EEG Channel 3 Output</string>
+    <string name="eegString4Out">EEG Channel 4 Output</string>
+    <string name="eegStringAuxLOut">EEG Channel 5 Output</string>
+    <string name="eegStringAuxROut">EEG Channel 6 Output</string>
+
     <string name="permission_dialog_title">Muse Needs Your Permission</string>
     <string name="permission_dialog_description">Muse needs a few permissions to work properly. On the next screens, tap "Allow" to proceed. If you deny, Muse will not work properly until you go into your Android settings and allow.</string>
     <string name="permission_dialog_understand">I Understand</string>

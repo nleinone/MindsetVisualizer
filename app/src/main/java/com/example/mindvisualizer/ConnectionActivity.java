@@ -9,6 +9,7 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -77,9 +78,9 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     int eegSnapShotCounter = 0;
     private boolean calibrated;
 
-    public void UpdateEEGValue(String text)
+    public void UpdateTextViewValue(String text, TextView tv)
     {
-        TextView tv = findViewById(R.id.avgEEGTextConn);
+
         Log.d(TAG, "TextView Found");
         tv.setText(text);
         Log.d(TAG, "TextView set");
@@ -118,18 +119,40 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                     if (eegSnapShotCounter == timeRate)
                     {
                         Log.d(TAG, "EEG average: " + avgEEGValue);
-                        //Log.d(TAG, "EEG: " + eeg1 + " " + eeg2 + " " + eeg3
-                        //        + " " + eeg4 + " " + aux_l + " " + aux_r);
+                        Log.d(TAG, "EEG: " + eeg1 + " " + eeg2 + " " + eeg3
+                                + " " + eeg4 + " " + aux_l + " " + aux_r);
                         eegSnapShotCounter = 0;
 
                         //Update EEG value to all activities it is used. Right now only shown in visual activity, and the data collections starts when the Muse is connected.
                         //Check if VisualActivity exists (The activity is opened once)
 
-                        String avgEEGValueString = Double.toString(avgEEGValue);
 
-                        UpdateEEGValue(avgEEGValueString);
-                        //Intent intent = new Intent(getBaseContext(), VisualActivity.class);
-                        //intent.putExtra("AVERAGE_EEG_VALUE", avgEEGValueString);
+                        /*https://www.journaldev.com/9412/android-shared-preferences-example-tutorial*/
+
+                        String avgEEGValueString = Double.toString(avgEEGValue);
+                        String eeg1String = Double.toString(eeg1);
+                        String eeg2String = Double.toString(eeg2);
+                        String eeg3String = Double.toString(eeg3);
+                        String eeg4String = Double.toString(eeg4);
+                        String aux_lString = Double.toString(aux_l);
+                        String aux_rString = Double.toString(aux_r);
+
+                        SharedPreferences pref = getApplicationContext().getSharedPreferences("EegData", 0); // 0 - for private mode
+                        SharedPreferences.Editor editor = pref.edit();
+                        editor.apply();
+
+                        //Save EEG channel data to shared data section of the mobile phone:
+                        editor.putString("eeg1String", eeg1String); // Storing string
+                        editor.putString("eeg2String", eeg2String); // Storing string
+                        editor.putString("eeg3String", eeg3String); // Storing string
+                        editor.putString("eeg4String", eeg4String); // Storing string
+                        editor.putString("aux_lString", aux_lString); // Storing string
+                        editor.putString("aux_rString", aux_rString); // Storing string
+
+                        editor.commit();
+
+                        TextView eegTv1 = findViewById(R.id.avgEEGTextConn);
+                        UpdateTextViewValue(avgEEGValueString, eegTv1);
 
                     }
 

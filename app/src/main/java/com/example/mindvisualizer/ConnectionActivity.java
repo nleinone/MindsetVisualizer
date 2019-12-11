@@ -204,6 +204,11 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                 case ALPHA_RELATIVE:
                     uploadEEGValueToSharedRef(p, 2);
                     break;
+
+                case ALPHA_ABSOLUTE:
+                    uploadEEGValueToSharedRef(p, 2);
+                    break;
+
                 default:
                     break;
             }
@@ -224,10 +229,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         muse.registerConnectionListener(connectionListener);
         muse.registerDataListener(dataListener, MuseDataPacketType.EEG);
         muse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_RELATIVE);
-        muse.registerDataListener(dataListener, MuseDataPacketType.ACCELEROMETER);
-        muse.registerDataListener(dataListener, MuseDataPacketType.BATTERY);
-        muse.registerDataListener(dataListener, MuseDataPacketType.DRL_REF);
-        muse.registerDataListener(dataListener, MuseDataPacketType.QUANTIZATION);
+        muse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_ABSOLUTE);
 
         // Initiate a connection to the headband and stream the data asynchronously.
         muse.runAsynchronously();

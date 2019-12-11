@@ -22,7 +22,9 @@ public class VisualActivity extends AppCompatActivity {
 
         TextView picture1 = findViewById(R.id.picture1);
 
-        if(color_change_variable == 0)
+
+
+        if(color_change_variable >= 0 || color_change_variable <= 15)
         {
             //Do something
 

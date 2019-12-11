@@ -107,7 +107,6 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
         findViewById(R.id.start_calib).setOnClickListener(CalibrationActivity.this);
         findViewById(R.id.return_prev).setOnClickListener(CalibrationActivity.this);
 
-
         //Get eeg data
 
         //Update UI:

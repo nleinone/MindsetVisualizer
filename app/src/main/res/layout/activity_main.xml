@@ -113,4 +113,10 @@
         android:layout_height="wrap_content"
         android:text="@string/avgAlpha1Out" />
 
+    <TextView
+        android:id="@+id/avgAbsAlpha1"
+        android:layout_width="192dp"
+        android:layout_height="wrap_content"
+        android:text="@string/avgAbsAlpha1Out" />
+
 </LinearLayout>

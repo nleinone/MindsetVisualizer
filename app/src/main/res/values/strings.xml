@@ -36,8 +36,8 @@
     <string name="eegStringAuxLOut">EEG Channel 5 Output</string>
     <string name="eegStringAuxROut">EEG Channel 6 Output</string>
 
-    <string name="eegStringAlpha1">Alpha 1 Value:</string>
-    <string name="eegStringAlpha1Out">Alpha 1 Output:</string>
+    <string name="avgAlpha1">Average Alpha 1:</string>
+    <string name="avgAlpha1Out">average alpha</string>
 
     <string name="permission_dialog_title">Muse Needs Your Permission</string>
     <string name="permission_dialog_description">Muse needs a few permissions to work properly. On the next screens, tap "Allow" to proceed. If you deny, Muse will not work properly until you go into your Android settings and allow.</string>

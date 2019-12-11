@@ -102,15 +102,15 @@
         android:text="0" />
 
     <TextView
-        android:id="@+id/eegAlpha1"
-        android:layout_width="200dp"
+        android:id="@+id/avgAlpha1"
+        android:layout_width="195dp"
         android:layout_height="wrap_content"
-        android:text="@string/eegStringAlpha1" />
+        android:text="@string/avgAlpha1" />
 
     <TextView
-        android:id="@+id/eegAlpha1ValueOut"
-        android:layout_width="198dp"
+        android:id="@+id/textView2"
+        android:layout_width="194dp"
         android:layout_height="wrap_content"
-        android:text="@string/eegStringAlpha1Out" />
+        android:text="@string/avgAlpha1Out" />
 
 </LinearLayout>

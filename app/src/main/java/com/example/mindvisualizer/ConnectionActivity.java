@@ -47,7 +47,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
      * Tag used for logging purposes.
      */
     private final String TAG = "HEADBAND";
-
+    private final String TAG2 = "Alpha";
     /**
      * The MuseManager is how you detect Muse headbands and receive notifications
      * when the list of available headbands changes.
@@ -90,6 +90,84 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         Log.d(TAG, "TextView set");
     }
 
+    public void uploadEEGValueToSharedRef(MuseDataPacket p, int timeRate, Boolean isRawData)
+    {
+        double eeg1 = p.getEegChannelValue(Eeg.EEG1);
+        double eeg2 = p.getEegChannelValue(Eeg.EEG2);
+        double eeg3 = p.getEegChannelValue(Eeg.EEG3);
+        double eeg4 = p.getEegChannelValue(Eeg.EEG4);
+        double aux_l = p.getEegChannelValue(Eeg.AUX_LEFT);
+        double aux_r = p.getEegChannelValue(Eeg.AUX_RIGHT);
+
+        double avgEEGValue = ((eeg1 + eeg2 + eeg3 + eeg4) / 4);
+
+        eegSnapShotCounter += 1;
+        //Muse eeg data is updated roughly 3 times every 1 millisecond. This is just an estimate without any specific calculations.
+
+        if (eegSnapShotCounter == timeRate)
+        {
+            if(isRawData == false)
+            {
+                Log.d(TAG2, "EEG alpha average: " + avgEEGValue);
+                Log.d(TAG2, "EEG alphas: " + eeg1 + " " + eeg2 + " " + eeg3
+                        + " " + eeg4 + " " + aux_l + " " + aux_r);
+            }
+            else
+            {
+                Log.d(TAG, "EEG average: " + avgEEGValue);
+                Log.d(TAG, "EEG: " + eeg1 + " " + eeg2 + " " + eeg3
+                        + " " + eeg4 + " " + aux_l + " " + aux_r);
+            }
+
+            eegSnapShotCounter = 0;
+
+            //Update EEG value to all activities it is used. Right now only shown in visual activity, and the data collections starts when the Muse is connected.
+            //Check if VisualActivity exists (The activity is opened once)
+            /*https://www.journaldev.com/9412/android-shared-preferences-example-tutorial*/
+
+            String avgEEGValueString = Double.toString(avgEEGValue);
+            String eeg1String = Double.toString(eeg1);
+            String eeg2String = Double.toString(eeg2);
+            String eeg3String = Double.toString(eeg3);
+            String eeg4String = Double.toString(eeg4);
+            String aux_lString = Double.toString(aux_l);
+            String aux_rString = Double.toString(aux_r);
+
+            SharedPreferences pref = getApplicationContext().getSharedPreferences("EegData", 0); // 0 - for private mode
+            SharedPreferences.Editor editor = pref.edit();
+            editor.apply();
+
+            TextView eegTv1;
+
+            if(isRawData == false)
+            {
+                //Save EEG channel data to shared data section of the mobile phone:
+                editor.putString("eegAlpha1String", eeg1String); // Storing string
+                editor.putString("eegAlpha2String", eeg2String); // Storing string
+                editor.putString("eegAlpha3String", eeg3String); // Storing string
+                editor.putString("eegAlpha4String", eeg4String); // Storing string
+                editor.putString("aux_lAlphaString", aux_lString); // Storing string
+                editor.putString("aux_rAlphaString", aux_rString); // Storing string
+                eegTv1 = findViewById(R.id.avgAlpha1);
+            }
+            else
+            {
+                //Save EEG channel data to shared data section of the mobile phone:
+                editor.putString("eeg1String", eeg1String); // Storing string
+                editor.putString("eeg2String", eeg2String); // Storing string
+                editor.putString("eeg3String", eeg3String); // Storing string
+                editor.putString("eeg4String", eeg4String); // Storing string
+                editor.putString("aux_lString", aux_lString); // Storing string
+                editor.putString("aux_rString", aux_rString); // Storing string
+                eegTv1 = findViewById(R.id.avgEEGTextConn);
+            }
+
+            editor.commit();
+            UpdateTextViewValue(avgEEGValueString, eegTv1);
+
+        }
+    }
+
     public void ConnectAndStreamMuseData(List<Muse> availableMuses)
     {
         MuseDataListener dataListener = new MuseDataListener() {
@@ -104,129 +182,12 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         @Override
         public void receiveMuseDataPacket(MuseDataPacket p, Muse muse) {
             switch (p.packetType()) {
-
-                case ALPHA_RELATIVE:
-                    Log.d(TAG, "EEG packet type: " + p.packetType());
-                    // Do something here
-
-                    double eegAlpha1 = p.getEegChannelValue(Eeg.EEG1);
-                    double eegAlpha2 = p.getEegChannelValue(Eeg.EEG2);
-                    double eegAlpha3 = p.getEegChannelValue(Eeg.EEG3);
-                    double eegAlpha4 = p.getEegChannelValue(Eeg.EEG4);
-
-                    Log.d(TAG, "EEG alpha1: " + eegAlpha1);
-                    Log.d(TAG, "EEG alpha2: " + eegAlpha2);
-                    Log.d(TAG, "EEG alpha3: " + eegAlpha3);
-                    Log.d(TAG, "EEG alpha4: " + eegAlpha4);
-
-                    double alphaMean = (eegAlpha1 + eegAlpha2 + eegAlpha3 + eegAlpha4);
-
-                    Log.d(TAG, "alphaMean: " + alphaMean);
-
-                    eegSnapShotCounterAlpha += 1;
-                    //Muse eeg data is updated roughly 3 times every 1 millisecond. This is just an estimate without any specific calculations.
-                    int timeRate2 = 2;
-                    // Log.d(TAG, "eegSnapShotCounterAlpha: " + eegSnapShotCounterAlpha);
-                    if (eegSnapShotCounterAlpha == timeRate2)
-                    {
-
-                        //Log.d(TAG, "EEG test");
-                        eegSnapShotCounterAlpha = 0;
-
-                        //Update EEG value to all activities it is used. Right now only shown in visual activity, and the data collections starts when the Muse is connected.
-                        //Check if VisualActivity exists (The activity is opened once)
-
-                        /*https://www.journaldev.com/9412/android-shared-preferences-example-tutorial*/
-
-                        String eegAlphaString = Double.toString(eegAlpha1);
-
-                        //Log.d(TAG, "EEG alpha string: " + eegAlphaString);
-
-                        SharedPreferences pref = getApplicationContext().getSharedPreferences("EegData", 0); // 0 - for private mode
-                        SharedPreferences.Editor editor = pref.edit();
-                        editor.apply();
-
-                        //Save EEG channel data to shared data section of the mobile phone:
-                        editor.putString("eeg1AlphaString", eegAlphaString); // Storing string
-                        editor.apply();
-
-                        TextView eegTv1 = findViewById(R.id.eegAlpha1ValueOut);
-                        UpdateTextViewValue(eegAlphaString, eegTv1);
-
-                    }
-
                 case EEG:
-                    // Do something here
-                    Log.d(TAG, "EEG packet type: " + p.packetType());
-                    double eeg1 = p.getEegChannelValue(Eeg.EEG1);
-                    double eeg2 = p.getEegChannelValue(Eeg.EEG2);
-                    double eeg3 = p.getEegChannelValue(Eeg.EEG3);
-                    double eeg4 = p.getEegChannelValue(Eeg.EEG4);
-                    double aux_l = p.getEegChannelValue(Eeg.AUX_LEFT);
-                    double aux_r = p.getEegChannelValue(Eeg.AUX_RIGHT);
-
-
-                    double avgEEGValue = ((eeg1 + eeg2 + eeg3 + eeg4) / 4);
-
-                    eegSnapShotCounterRawData += 1;
-                    //Muse eeg data is updated roughly 3 times every 1 millisecond. This is just an estimate without any specific calculations.
-                    int timeRate = 1000;
-
-                    if (eegSnapShotCounterRawData == timeRate)
-                    {
-                        Log.d(TAG, "EEG average: " + avgEEGValue);
-                        Log.d(TAG, "EEG: " + eeg1 + " " + eeg2 + " " + eeg3
-                                + " " + eeg4 + " " + aux_l + " " + aux_r);
-                        eegSnapShotCounterRawData = 0;
-
-                        //Update EEG value to all activities it is used. Right now only shown in visual activity, and the data collections starts when the Muse is connected.
-                        //Check if VisualActivity exists (The activity is opened once)
-
-
-                        /*https://www.journaldev.com/9412/android-shared-preferences-example-tutorial*/
-
-                        String avgEEGValueString = Double.toString(avgEEGValue);
-                        String eeg1String = Double.toString(eeg1);
-                        String eeg2String = Double.toString(eeg2);
-                        String eeg3String = Double.toString(eeg3);
-                        String eeg4String = Double.toString(eeg4);
-                        String aux_lString = Double.toString(aux_l);
-                        String aux_rString = Double.toString(aux_r);
-
-
-
-
-
-                        SharedPreferences pref = getApplicationContext().getSharedPreferences("EegData", 0); // 0 - for private mode
-                        SharedPreferences.Editor editor = pref.edit();
-                        editor.apply();
-
-                        //Save EEG channel data to shared data section of the mobile phone:
-                        editor.putString("eeg1String", eeg1String); // Storing string
-                        editor.putString("eeg2String", eeg2String); // Storing string
-                        editor.putString("eeg3String", eeg3String); // Storing string
-                        editor.putString("eeg4String", eeg4String); // Storing string
-                        editor.putString("aux_lString", aux_lString); // Storing string
-                        editor.putString("aux_rString", aux_rString); // Storing string
-
-                        editor.commit();
-
-                        TextView eegTv1 = findViewById(R.id.avgEEGTextConn);
-                        UpdateTextViewValue(avgEEGValueString, eegTv1);
-
-                    }
-
-
+                    uploadEEGValueToSharedRef(p, 500, true);
                     break;
-                case ACCELEROMETER:
-                    // Do something here
-
-                    double x = p.getAccelerometerValue(Accelerometer.X);
-                    double y = p.getAccelerometerValue(Accelerometer.Y);
-                    double z = p.getAccelerometerValue(Accelerometer.Z);
-                    //Log.d(TAG, "Accelerometer: " + x + " " + y + " " + z);
+                case ALPHA_RELATIVE:
+                    uploadEEGValueToSharedRef(p, 2, false);
                     break;
-
                 default:
                     break;
             }

@@ -174,7 +174,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
 
         // Initiate a connection to the headband and stream the data asynchronously.
         muse.runAsynchronously();
-        
+
     }
 
     @Override

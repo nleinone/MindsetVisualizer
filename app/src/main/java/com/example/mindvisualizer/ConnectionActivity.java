@@ -35,6 +35,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.FirebaseDatabase;
 
+
+
 import java.util.List;
 
 public class ConnectionActivity extends AppCompatActivity implements View.OnClickListener {
@@ -75,8 +77,10 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     // UI elements
     Spinner spinner;
     TextView status;
-    int eegSnapShotCounter = 0;
+    int eegSnapShotCounterRawData = 0;
+    int eegSnapShotCounterAlpha = 0;
     private boolean calibrated;
+    private double alphaMean = 0;
 
     public void UpdateTextViewValue(String text, TextView tv)
     {
@@ -100,9 +104,60 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         @Override
         public void receiveMuseDataPacket(MuseDataPacket p, Muse muse) {
             switch (p.packetType()) {
-                case EEG:
+
+                case ALPHA_RELATIVE:
+                    Log.d(TAG, "EEG packet type: " + p.packetType());
                     // Do something here
 
+                    double eegAlpha1 = p.getEegChannelValue(Eeg.EEG1);
+                    double eegAlpha2 = p.getEegChannelValue(Eeg.EEG2);
+                    double eegAlpha3 = p.getEegChannelValue(Eeg.EEG3);
+                    double eegAlpha4 = p.getEegChannelValue(Eeg.EEG4);
+
+                    Log.d(TAG, "EEG alpha1: " + eegAlpha1);
+                    Log.d(TAG, "EEG alpha2: " + eegAlpha2);
+                    Log.d(TAG, "EEG alpha3: " + eegAlpha3);
+                    Log.d(TAG, "EEG alpha4: " + eegAlpha4);
+
+                    double alphaMean = (eegAlpha1 + eegAlpha2 + eegAlpha3 + eegAlpha4);
+
+                    Log.d(TAG, "alphaMean: " + alphaMean);
+
+                    eegSnapShotCounterAlpha += 1;
+                    //Muse eeg data is updated roughly 3 times every 1 millisecond. This is just an estimate without any specific calculations.
+                    int timeRate2 = 2;
+                    // Log.d(TAG, "eegSnapShotCounterAlpha: " + eegSnapShotCounterAlpha);
+                    if (eegSnapShotCounterAlpha == timeRate2)
+                    {
+
+                        //Log.d(TAG, "EEG test");
+                        eegSnapShotCounterAlpha = 0;
+
+                        //Update EEG value to all activities it is used. Right now only shown in visual activity, and the data collections starts when the Muse is connected.
+                        //Check if VisualActivity exists (The activity is opened once)
+
+                        /*https://www.journaldev.com/9412/android-shared-preferences-example-tutorial*/
+
+                        String eegAlphaString = Double.toString(eegAlpha1);
+
+                        //Log.d(TAG, "EEG alpha string: " + eegAlphaString);
+
+                        SharedPreferences pref = getApplicationContext().getSharedPreferences("EegData", 0); // 0 - for private mode
+                        SharedPreferences.Editor editor = pref.edit();
+                        editor.apply();
+
+                        //Save EEG channel data to shared data section of the mobile phone:
+                        editor.putString("eeg1AlphaString", eegAlphaString); // Storing string
+                        editor.apply();
+
+                        TextView eegTv1 = findViewById(R.id.eegAlpha1ValueOut);
+                        UpdateTextViewValue(eegAlphaString, eegTv1);
+
+                    }
+
+                case EEG:
+                    // Do something here
+                    Log.d(TAG, "EEG packet type: " + p.packetType());
                     double eeg1 = p.getEegChannelValue(Eeg.EEG1);
                     double eeg2 = p.getEegChannelValue(Eeg.EEG2);
                     double eeg3 = p.getEegChannelValue(Eeg.EEG3);
@@ -110,18 +165,19 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                     double aux_l = p.getEegChannelValue(Eeg.AUX_LEFT);
                     double aux_r = p.getEegChannelValue(Eeg.AUX_RIGHT);
 
+
                     double avgEEGValue = ((eeg1 + eeg2 + eeg3 + eeg4) / 4);
 
-                    eegSnapShotCounter += 1;
+                    eegSnapShotCounterRawData += 1;
                     //Muse eeg data is updated roughly 3 times every 1 millisecond. This is just an estimate without any specific calculations.
                     int timeRate = 1000;
 
-                    if (eegSnapShotCounter == timeRate)
+                    if (eegSnapShotCounterRawData == timeRate)
                     {
                         Log.d(TAG, "EEG average: " + avgEEGValue);
                         Log.d(TAG, "EEG: " + eeg1 + " " + eeg2 + " " + eeg3
                                 + " " + eeg4 + " " + aux_l + " " + aux_r);
-                        eegSnapShotCounter = 0;
+                        eegSnapShotCounterRawData = 0;
 
                         //Update EEG value to all activities it is used. Right now only shown in visual activity, and the data collections starts when the Muse is connected.
                         //Check if VisualActivity exists (The activity is opened once)
@@ -136,6 +192,10 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                         String eeg4String = Double.toString(eeg4);
                         String aux_lString = Double.toString(aux_l);
                         String aux_rString = Double.toString(aux_r);
+
+
+
+
 
                         SharedPreferences pref = getApplicationContext().getSharedPreferences("EegData", 0); // 0 - for private mode
                         SharedPreferences.Editor editor = pref.edit();
@@ -166,10 +226,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                     double z = p.getAccelerometerValue(Accelerometer.Z);
                     //Log.d(TAG, "Accelerometer: " + x + " " + y + " " + z);
                     break;
-                case ALPHA_RELATIVE:
-                case BATTERY:
-                case DRL_REF:
-                case QUANTIZATION:
+
                 default:
                     break;
             }
@@ -190,10 +247,6 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         muse.registerConnectionListener(connectionListener);
         muse.registerDataListener(dataListener, MuseDataPacketType.EEG);
         muse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_RELATIVE);
-        muse.registerDataListener(dataListener, MuseDataPacketType.ACCELEROMETER);
-        muse.registerDataListener(dataListener, MuseDataPacketType.BATTERY);
-        muse.registerDataListener(dataListener, MuseDataPacketType.DRL_REF);
-        muse.registerDataListener(dataListener, MuseDataPacketType.QUANTIZATION);
 
         // Initiate a connection to the headband and stream the data asynchronously.
         muse.runAsynchronously();

@@ -109,6 +109,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                 Log.d(TAG2, "EEG rel alphas: " + eeg1 + " " + eeg2 + " " + eeg3
                         + " " + eeg4 + " " + aux_l + " " + aux_r);
             }
+
             else if(p.packetType() == MuseDataPacketType.EEG)
             {
                 Log.d(TAG1, "EEG average: " + avgEEGValue);
@@ -184,6 +185,18 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
+    public void saveDataToFireBaseAndClearReferenceData(String eeg1String, String eeg2String, String eeg3String, String eeg4String, String eegAuxlString, String eegAuxrString, String eegAvgString)
+    {
+
+        //Upload reference data to FireBase
+        //Use this function to Upload eeg data (and other necessary data) to Firebase
+
+        //Clear data from shared preference (phone memory), can be placed in the "end session button"
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("EegData", 0); // 0 - for private mode
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear().apply();
+    }
+
     public void ConnectAndStreamMuseData(List<Muse> availableMuses)
     {
         MuseDataListener dataListener = new MuseDataListener() {
@@ -240,6 +253,14 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Clear shared reference data when the app is launched.
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("EegData", 0); // 0 - for private mode
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear().apply();
+
+        Log.d(TAG1, "Cleared shared reference file");
+
 
         Bundle b = getIntent().getExtras();
         calibrated = b.getBoolean("calib");

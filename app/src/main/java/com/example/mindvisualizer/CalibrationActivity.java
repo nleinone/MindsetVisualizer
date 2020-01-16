@@ -51,11 +51,11 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
         Log.d(TAG, "TextView set");
     }
 
-    public void fastFourierTransform(String eeg1)
-    {
-        int eeg1Int = Integer.parseInt(eeg1);
-        
-    }
+    //public void fastFourierTransform(String eeg1)
+    //{
+    //    int eeg1Int = Integer.parseInt(eeg1);
+    //
+    //}
 
     public void updateEEGTextViews()
     {
@@ -77,7 +77,7 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
         UpdateTextViewValue(eeg4, eegtv4);
 
         //Transform the raw EEG data to frequency:
-        fastFourierTransform(eeg1);
+        //fastFourierTransform(eeg1);
 
 
     }

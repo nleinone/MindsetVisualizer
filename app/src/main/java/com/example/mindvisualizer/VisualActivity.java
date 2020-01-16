@@ -1,10 +1,11 @@
 package com.example.mindvisualizer;
-package com.tabian.imageview;
+//package com.tabian.imageview;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 public class VisualActivity extends AppCompatActivity {
@@ -40,6 +41,10 @@ public class VisualActivity extends AppCompatActivity {
         }
         else if(color_change_variable <= 50){
             //view.setBackgroundResource(R.color.Red);
+        }
+        else
+        {
+            Log.d("Visual", "Test");
         }
     }
 }

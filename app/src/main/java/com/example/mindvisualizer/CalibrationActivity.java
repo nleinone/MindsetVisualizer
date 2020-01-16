@@ -91,6 +91,7 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
             public void run() {
                 /* do what you need to do */
                 Log.d(TAG, "UI updated");
+
                 updateEEGTextViews();
                 /* and here comes the "trick" */
                 handler.postDelayed(this, 5000);

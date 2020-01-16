@@ -36,7 +36,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.FirebaseDatabase;
 
 
-
+import java.util.ArrayList;
 import java.util.List;
 
 public class ConnectionActivity extends AppCompatActivity implements View.OnClickListener {
@@ -50,6 +50,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     private final String TAG2 = "REL_ALPHA";
     private final String TAG3 = "ABS_ALPHA";
     int eegSnapShotCounter;
+    List<Integer> avgs = new ArrayList<>();
     /**
      * The MuseManager is how you detect Muse headbands and receive notifications
      * when the list of available headbands changes.
@@ -83,6 +84,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     int eegSnapShotCounterAlpha = 0;
     private boolean calibrated;
     private double alphaMean = 0;
+    int eegSnapShotResetCounter = 0;
 
     public void UpdateTextViewValue(String text, TextView tv)
     {
@@ -94,6 +96,10 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
 
     public void uploadEEGValueToSharedRef(MuseDataPacket p, int timeRate)
     {
+
+        //list for firebase database avg values
+
+
         double eeg1 = p.getEegChannelValue(Eeg.EEG1);
         double eeg2 = p.getEegChannelValue(Eeg.EEG2);
         double eeg3 = p.getEegChannelValue(Eeg.EEG3);
@@ -104,10 +110,41 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         double avgEEGValue = ((eeg1 + eeg2 + eeg3 + eeg4) / 4);
 
         eegSnapShotCounter += 1;
+        //Reset shared reference every 5 counter:
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("EegData", 0); // 0 - for private mode
+        SharedPreferences.Editor editor = pref.edit();
+
+
         //Muse eeg data is updated roughly 3 times every 1 millisecond. This is just an estimate without any specific calculations.
 
         if (eegSnapShotCounter == timeRate)
         {
+            eegSnapShotResetCounter =+ 1;
+
+            //Add avg to list every 10th data packet.
+            avgs.add((int)avgEEGValue);
+            if(eegSnapShotResetCounter == 5)
+            {
+                //For every 50th data packet. (5*10) Get list average and update to Firebase
+                int tempValue = 0;
+                for (int i = 0; i < avgs.size(); i++) {
+                    System.out.println(avgs.get(i));
+                    int singleAvgValue = avgs.get(i);
+                    tempValue += singleAvgValue;
+
+                }
+                //UPDATE THIS TO FIREBASE HERE
+                int fireBaseUpdateValue = tempValue / avgs.size();
+                eegSnapShotResetCounter = 0;
+                //Code here
+                //****
+
+                //After the update clean the phone memory (shared preference)
+                Log.d(TAG2, "Data cleared");
+                pref.edit().clear().apply();
+
+            }
+
             if(p.packetType() == MuseDataPacketType.ALPHA_RELATIVE)
             {
                 Log.d(TAG2, "EEG rel alpha average: " + avgEEGValue);
@@ -143,9 +180,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
             String aux_lString = Double.toString(aux_l);
             String aux_rString = Double.toString(aux_r);
 
-            SharedPreferences pref = getApplicationContext().getSharedPreferences("EegData", 0); // 0 - for private mode
-            SharedPreferences.Editor editor = pref.edit();
-            editor.apply();
+
 
             TextView eegTv1;
 
@@ -189,6 +224,9 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
             }
 
             editor.commit();
+
+            //Upload shared preferences
+
             UpdateTextViewValue(avgEEGValueString, eegTv1);
 
         }
@@ -220,16 +258,16 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         @Override
         public void receiveMuseDataPacket(MuseDataPacket p, Muse muse) {
             switch (p.packetType()) {
-                case EEG:
-                    uploadEEGValueToSharedRef(p, 500);
-                    break;
-                case ALPHA_RELATIVE:
-                    uploadEEGValueToSharedRef(p, 2);
-                    break;
+                //case EEG:
+                //    uploadEEGValueToSharedRef(p, 500);
+                //    break;
+                 case ALPHA_RELATIVE:
+                     uploadEEGValueToSharedRef(p, 10);
+                     break;
 
-                case ALPHA_ABSOLUTE:
-                    uploadEEGValueToSharedRef(p, 2);
-                    break;
+                //case ALPHA_ABSOLUTE:
+                //   uploadEEGValueToSharedRef(p, 2);
+                //   break;
 
                 default:
                     break;
@@ -480,11 +518,6 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
             }
         }
     };
-
-
-
-
     // DataListener is how you will receive EEG (and other) data from the headband
-
 
 }

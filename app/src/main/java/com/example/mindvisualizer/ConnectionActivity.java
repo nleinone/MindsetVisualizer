@@ -46,8 +46,9 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     /**
      * Tag used for logging purposes.
      */
-    private final String TAG = "HEADBAND";
-    private final String TAG2 = "Alpha";
+    private final String TAG1 = "EEG";
+    private final String TAG2 = "REL_ALPHA";
+    private final String TAG3 = "ABS_ALPHA";
     /**
      * The MuseManager is how you detect Muse headbands and receive notifications
      * when the list of available headbands changes.
@@ -85,12 +86,12 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     public void UpdateTextViewValue(String text, TextView tv)
     {
 
-        Log.d(TAG, "TextView Found");
+        Log.d(TAG1, "TextView Found");
         tv.setText(text);
-        Log.d(TAG, "TextView set");
+        Log.d(TAG1, "TextView set");
     }
 
-    public void uploadEEGValueToSharedRef(MuseDataPacket p, int timeRate, Boolean isRawData)
+    public void uploadEEGValueToSharedRef(MuseDataPacket p, int timeRate)
     {
         double eeg1 = p.getEegChannelValue(Eeg.EEG1);
         double eeg2 = p.getEegChannelValue(Eeg.EEG2);
@@ -106,16 +107,24 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
 
         if (eegSnapShotCounter == timeRate)
         {
-            if(isRawData == false)
+            if(p.packetType() == MuseDataPacketType.ALPHA_RELATIVE)
             {
-                Log.d(TAG2, "EEG alpha average: " + avgEEGValue);
-                Log.d(TAG2, "EEG alphas: " + eeg1 + " " + eeg2 + " " + eeg3
+                Log.d(TAG2, "EEG rel alpha average: " + avgEEGValue);
+                Log.d(TAG2, "EEG rel alphas: " + eeg1 + " " + eeg2 + " " + eeg3
                         + " " + eeg4 + " " + aux_l + " " + aux_r);
             }
-            else
+
+            else if(p.packetType() == MuseDataPacketType.EEG)
             {
-                Log.d(TAG, "EEG average: " + avgEEGValue);
-                Log.d(TAG, "EEG: " + eeg1 + " " + eeg2 + " " + eeg3
+                Log.d(TAG1, "EEG average: " + avgEEGValue);
+                Log.d(TAG1, "EEG: " + eeg1 + " " + eeg2 + " " + eeg3
+                        + " " + eeg4 + " " + aux_l + " " + aux_r);
+            }
+
+            else if(p.packetType() == MuseDataPacketType.ALPHA_ABSOLUTE)
+            {
+                Log.d(TAG3, "EEG abs average: " + avgEEGValue);
+                Log.d(TAG3, "EEG abs alphas: " + eeg1 + " " + eeg2 + " " + eeg3
                         + " " + eeg4 + " " + aux_l + " " + aux_r);
             }
 
@@ -139,7 +148,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
 
             TextView eegTv1;
 
-            if(isRawData == false)
+            if(p.packetType() == MuseDataPacketType.ALPHA_RELATIVE)
             {
                 //Save EEG channel data to shared data section of the mobile phone:
                 editor.putString("eegAlpha1String", eeg1String); // Storing string
@@ -149,6 +158,18 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                 editor.putString("aux_lAlphaString", aux_lString); // Storing string
                 editor.putString("aux_rAlphaString", aux_rString); // Storing string
                 eegTv1 = findViewById(R.id.avgAlpha1);
+            }
+
+            else if(p.packetType() == MuseDataPacketType.ALPHA_ABSOLUTE)
+            {
+                //Save EEG channel data to shared data section of the mobile phone:
+                editor.putString("eeg1AbsAlphaString", eeg1String); // Storing string
+                editor.putString("eeg2AbsAlphaString", eeg2String); // Storing string
+                editor.putString("eeg3AbsAlphaString", eeg3String); // Storing string
+                editor.putString("eeg4AbsAlphaString", eeg4String); // Storing string
+                editor.putString("aux_lAbsAlphaString", aux_lString); // Storing string
+                editor.putString("aux_rAbsAlphaString", aux_rString); // Storing string
+                eegTv1 = findViewById(R.id.avgAbsAlpha1);
             }
             else
             {
@@ -168,6 +189,18 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
+    public void saveDataToFireBaseAndClearReferenceData(String eeg1String, String eeg2String, String eeg3String, String eeg4String, String eegAuxlString, String eegAuxrString, String eegAvgString)
+    {
+
+        //Upload reference data to FireBase
+        //Use this function to Upload eeg data (and other necessary data) to Firebase
+
+        //Clear data from shared preference (phone memory), can be placed in the "end session button"
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("EegData", 0); // 0 - for private mode
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear().apply();
+    }
+
     public void ConnectAndStreamMuseData(List<Muse> availableMuses)
     {
         MuseDataListener dataListener = new MuseDataListener() {
@@ -183,11 +216,16 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         public void receiveMuseDataPacket(MuseDataPacket p, Muse muse) {
             switch (p.packetType()) {
                 case EEG:
-                    uploadEEGValueToSharedRef(p, 500, true);
+                    uploadEEGValueToSharedRef(p, 500);
                     break;
                 case ALPHA_RELATIVE:
-                    uploadEEGValueToSharedRef(p, 2, false);
+                    uploadEEGValueToSharedRef(p, 2);
                     break;
+
+                case ALPHA_ABSOLUTE:
+                    uploadEEGValueToSharedRef(p, 2);
+                    break;
+
                 default:
                     break;
             }
@@ -208,6 +246,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         muse.registerConnectionListener(connectionListener);
         muse.registerDataListener(dataListener, MuseDataPacketType.EEG);
         muse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_RELATIVE);
+        muse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_ABSOLUTE);
 
         // Initiate a connection to the headband and stream the data asynchronously.
         muse.runAsynchronously();
@@ -218,6 +257,14 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Clear shared reference data when the app is launched.
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("EegData", 0); // 0 - for private mode
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear().apply();
+
+        Log.d(TAG1, "Cleared shared reference file");
+
 
         Bundle b = getIntent().getExtras();
         calibrated = b.getBoolean("calib");
@@ -274,7 +321,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
             // Check that we actually have something to connect to.
             if (availableMuses.size() < 1 || spinner.getAdapter().getCount() < 1) {
                 Toast.makeText(getApplicationContext(), R.string.nothing, Toast.LENGTH_SHORT).show();
-                Log.d(TAG, "There is nothing to connect to");
+                Log.d(TAG1, "There is nothing to connect to");
             } else {
 
                 ConnectAndStreamMuseData(availableMuses);
@@ -419,10 +466,10 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
             // Update the UI with the change in connection state.
             ConnectionState current = p.getCurrentConnectionState();
             status.setText(String.valueOf(current));
-            Log.d(TAG, "Status: " + current);
+            Log.d(TAG1, "Status: " + current);
 
             if (current == ConnectionState.DISCONNECTED) {
-                Log.d(TAG, "Muse disconnected:" + muse.getName());
+                Log.d(TAG1, "Muse disconnected:" + muse.getName());
                 // We have disconnected from the headband, so set our cached copy to null.
                 ConnectionActivity.this.muse = null;
             }

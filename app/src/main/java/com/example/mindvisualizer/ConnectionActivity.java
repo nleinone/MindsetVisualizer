@@ -49,6 +49,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     private final String TAG1 = "EEG";
     private final String TAG2 = "REL_ALPHA";
     private final String TAG3 = "ABS_ALPHA";
+    int eegSnapShotCounter;
     /**
      * The MuseManager is how you detect Muse headbands and receive notifications
      * when the list of available headbands changes.
@@ -157,6 +158,9 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                 editor.putString("eegAlpha4String", eeg4String); // Storing string
                 editor.putString("aux_lAlphaString", aux_lString); // Storing string
                 editor.putString("aux_rAlphaString", aux_rString); // Storing string
+
+                editor.putString("avgEegAlphaString", avgEEGValueString); // Storing string
+
                 eegTv1 = findViewById(R.id.avgAlpha1);
             }
 
@@ -169,6 +173,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                 editor.putString("eeg4AbsAlphaString", eeg4String); // Storing string
                 editor.putString("aux_lAbsAlphaString", aux_lString); // Storing string
                 editor.putString("aux_rAbsAlphaString", aux_rString); // Storing string
+                editor.putString("avgEegAlphaString", avgEEGValueString); // Storing string
                 eegTv1 = findViewById(R.id.avgAbsAlpha1);
             }
             else

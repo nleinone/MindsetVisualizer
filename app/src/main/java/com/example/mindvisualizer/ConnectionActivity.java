@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +34,7 @@ import com.choosemuse.libmuse.MuseListener;
 import com.choosemuse.libmuse.MuseManagerAndroid;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 
@@ -40,7 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConnectionActivity extends AppCompatActivity implements View.OnClickListener {
-
+    private Button calib;
     //Eeg value update init variable
 
     /**
@@ -134,10 +136,14 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
 
                 }
                 //UPDATE THIS TO FIREBASE HERE
-                int fireBaseUpdateValue = tempValue / avgs.size();
+               // int fireBaseUpdateValue = tempValue / avgs.size();
                 eegSnapShotResetCounter = 0;
                 //Code here
                 //****
+
+
+
+
 
                 //After the update clean the phone memory (shared preference)
                 Log.d(TAG2, "Data cleared");
@@ -297,7 +303,16 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {   // Niko without onCreate method i cannot push the value to the database
+
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("EEG_value");
+
+        myRef.setValue("246");
+
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -518,6 +533,8 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
             }
         }
     };
+
+
     // DataListener is how you will receive EEG (and other) data from the headband
 
 }

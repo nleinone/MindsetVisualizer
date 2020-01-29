@@ -1,8 +1,10 @@
 package com.example.mindvisualizer;
 
+import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.Log;
@@ -36,6 +38,7 @@ public class WorkerClass extends Worker {
         //Set calibration mode to off (0)
         SharedPreferences prefCalibrationMode = getApplicationContext().getSharedPreferences("prefCalibrationMode", 0); // 0 - for private mode
         prefCalibrationMode.edit().putString("CalibrationMode", calibMode).apply();
+        //calibrated = true;
     }
 
 }

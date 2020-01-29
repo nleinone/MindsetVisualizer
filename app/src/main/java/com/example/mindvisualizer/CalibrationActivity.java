@@ -26,30 +26,13 @@ import java.util.concurrent.TimeUnit;
 public class CalibrationActivity extends AppCompatActivity implements View.OnClickListener {
 
     private boolean calibrated = false;
-    private AlertDialog successBox;
+
     List<String> dataBundleArray = new ArrayList<String>();
     private final String TAG = "CalibrationActivity";
     String workTag = "CalibrationSession";
 
 
-    protected AlertDialog createAlertBoxWithButton(int calibSuccessT, int calibSuccessM)
-    {
 
-        String calibSuccessTitle = getString(calibSuccessT);
-        String calibSuccessMsg = getString(calibSuccessM);
-
-        final AlertDialog box = new AlertDialog.Builder(CalibrationActivity.this).create();
-        box.setTitle(calibSuccessTitle);
-        box.setMessage(calibSuccessMsg);
-        box.setButton(DialogInterface.BUTTON_NEUTRAL, getString(R.string.ok), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                box.cancel();
-            }
-        });
-
-        return box;
-    }
 
     public void UpdateTextViewValue(String text, TextView tv)
     {
@@ -121,7 +104,7 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View v) {
 
         SharedPreferences prefCalibrationMode = getApplicationContext().getSharedPreferences("prefCalibrationMode", 0); // 0 - for private mode
-
+        Log.v("CalibrationActivity", "Click");
         if (v.getId() == R.id.start_calib) {
 
             Log.v("CalibrationActivity", "Calibration started");
@@ -139,11 +122,11 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
             Log.v("CalibrationActivity", "CalibrationMode changed: " + calibMode);
             EditText durationOfCalibrationET = findViewById(R.id.calibDurationEditText);
 
-            int durationOfCalibration = 30;
+            int durationOfCalibration = 15000; //ms
 
             if (!durationOfCalibrationET.getText().toString().equals(""))
             {
-                durationOfCalibration = Integer.parseInt(durationOfCalibrationET.getText().toString());
+                durationOfCalibration = Integer.parseInt(durationOfCalibrationET.getText().toString()) * 1000;
                 Log.v("CalibrationActivity", "Duration set to: " + durationOfCalibration);
             }
 
@@ -153,7 +136,7 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
                     .addTag(workTag + sessionId)
                     .build();
 
-            WorkManager.getInstance().enqueue(calibrationWork);
+            WorkManager.getInstance(this).enqueue(calibrationWork);
             Log.v("CalibrationActivity", "Work queued: " + workTag + sessionId);
             // The user has pressed the "Start calibration" button.
             /*
@@ -165,9 +148,6 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
             //Update EEG textviews every 5 seconds:
             updateUI();
 
-            successBox = createAlertBoxWithButton(R.string.calibSuccessT, R.string.calibSuccessM);
-            calibrated = true;
-            successBox.show();
 
             //Collect EEG data to a data bundle. Needs a function which takes an instance of shared preference and appends a list with it. TODO
             //dataBundleArray = createDataBundleArray();

@@ -39,8 +39,10 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Calendar;
+import java.util.Map;
 
 public class ConnectionActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -90,6 +92,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     int eegSnapShotResetCounter;
     float tempValue = 0;
 
+
     public void UpdateTextViewValue(String text, TextView tv)
     {
 
@@ -101,17 +104,49 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     public void uploadValuesToFirebase(String sessionId, float avgValue, String waveName)
     {
         //Reference to root node:
+        Log.v("ConnectionActivity", "t1");
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference firebaseRootReference = database.getReference("Measurements");
-
+        Log.v("ConnectionActivity", "t2");
+        DatabaseReference firebaseRootReference = database.getReference("musefirebase-79096");
+        Log.v("ConnectionActivity", "t3");
         //Create new node for the current calibration session
-        DatabaseReference sessionReference = firebaseRootReference.child(sessionId);
+        DatabaseReference sessionReference = firebaseRootReference.child("Session-" + sessionId);
+        Log.v("ConnectionActivity", "t4");
         Date timeStamp = Calendar.getInstance().getTime();
-        sessionReference.setValue(timeStamp + " | " +  waveName, avgValue);
+        Log.v("ConnectionActivity", "t5");
+
+        //Create patch id:
+        SharedPreferences prefPatchId = getApplicationContext().getSharedPreferences("prefPatchId", 0); // 0 - for private mode
+        Log.v("ConnectionActivity", "t6");
+        String patchId = prefPatchId.getString("PatchId", "0");
+        Log.v("ConnectionActivity", "t7");
+        int intPatchId = Integer.parseInt(patchId);
+        Log.v("ConnectionActivity", "t8");
+        intPatchId += 1;
+        Log.v("ConnectionActivity", "t9");
+        patchId = Integer.toString(intPatchId);
+        Log.v("ConnectionActivity", "t10");
+        prefPatchId.edit().putString("PatchId", patchId).apply();
+        Log.v("ConnectionActivity", "t11");
+
+        sessionReference.child("Patch-" + patchId).setValue(avgValue);
         //Insert average value to this session:
         Log.v("ConnectionActivity", "Saved SessionId: " + sessionId);
         Log.v("ConnectionActivity", "Saved avgValue: " + avgValue);
         Log.v("ConnectionActivity", "Saved waveName: " + waveName);
+    }
+
+    public double convertNaNtoZero(double eeg)
+    {
+        double value = 0;
+        if(Double.isNaN(eeg))
+        {
+            return value;
+        }
+        else
+        {
+            return eeg;
+        }
     }
 
     public void uploadEEGValueToSharedRef(MuseDataPacket p, int timeRate, String waveName)
@@ -127,7 +162,15 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         double aux_l = p.getEegChannelValue(Eeg.AUX_LEFT);
         double aux_r = p.getEegChannelValue(Eeg.AUX_RIGHT);
 
+        //What to do with NaNs:
+        eeg1 = convertNaNtoZero(eeg1);
+        eeg2 = convertNaNtoZero(eeg2);
+        eeg3 = convertNaNtoZero(eeg3);
+        eeg4 = convertNaNtoZero(eeg4);
+
         double avgEEGValue = ((eeg1 + eeg2 + eeg3 + eeg4) / 4);
+        float avgEEGValueFloat = (float) avgEEGValue;
+        Log.v("ConnectionActivity", "avgEEGValueFloat: " + avgEEGValueFloat);
 
         eegSnapShotCounter += 1;
         Log.v("Timers", "eegSnapShotCounter: " + eegSnapShotCounter);
@@ -146,16 +189,22 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
             eegSnapShotResetCounter += 1;
             Log.v("Timers", "eegSnapShotResetCounter: " + eegSnapShotResetCounter);
             //Add avg to list every 10th data packet.
-            avgs.add((float)avgEEGValue);
+
+            avgs.add((float)avgEEGValueFloat);
             if(eegSnapShotResetCounter == 5)
             {
                 eegSnapShotResetCounter = 0;
-                //For every 50th data packet. (5*10) Get list average and update to Firebase
+
+                //Update avg patch to firebase
 
                 for (int i = 0; i < avgs.size(); i++) {
-                    System.out.println(avgs.get(i));
+
                     float singleAvgValue = avgs.get(i);
                     tempValue += singleAvgValue;
+                    Log.v("ConnectionActivity", "avgs.get(i): " + avgs.get(i));
+                    Log.v("ConnectionActivity", "len: " + avgs.size());
+                    Log.v("ConnectionActivity", "i: " + i);
+                    Log.v("ConnectionActivity", "singleAvgValue: " + singleAvgValue);
                     Log.v("ConnectionActivity", "TempValue: " + tempValue);
                     if(i == avgs.size() - 1)
                     {
@@ -163,6 +212,8 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                         //UPDATE THIS TO FIREBASE HERE
                         float fireBaseUpdateValue = tempValue / avgs.size();
                         tempValue = 0;
+                        avgs = new ArrayList<>();
+                        Log.v("ConnectionActivity", "TempValue after zero: " + tempValue);
                         //Check if the calibration Mode is on, if On, save data to firebase, if not, dont:
                         String calibrationMode = prefCalibrationMode.getString("CalibrationMode", "0");
 
@@ -290,7 +341,8 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                 //    break;
                 case ALPHA_RELATIVE:
                     String waveName = "AlphaRelative";
-                    uploadEEGValueToSharedRef(p, 10, waveName);
+                    int timeRate = 5;
+                    uploadEEGValueToSharedRef(p, timeRate, waveName);
                     break;
 
                 //case ALPHA_ABSOLUTE:

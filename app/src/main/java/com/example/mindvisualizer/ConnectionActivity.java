@@ -40,8 +40,10 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Calendar;
+import java.util.Map;
 
 public class ConnectionActivity extends AppCompatActivity implements View.OnClickListener {
     private Button calib;
@@ -54,7 +56,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     private final String TAG2 = "REL_ALPHA";
     private final String TAG3 = "ABS_ALPHA";
     int eegSnapShotCounter;
-    List<Integer> avgs = new ArrayList<>();
+    List<Float> avgs = new ArrayList<>();
     /**
      * The MuseManager is how you detect Muse headbands and receive notifications
      * when the list of available headbands changes.
@@ -88,7 +90,9 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
     int eegSnapShotCounterAlpha = 0;
     private boolean calibrated;
     private double alphaMean = 0;
-    int eegSnapShotResetCounter = 0;
+    int eegSnapShotResetCounter;
+    float tempValue = 0;
+
 
     public void UpdateTextViewValue(String text, TextView tv)
     {
@@ -98,20 +102,52 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         Log.d(TAG1, "TextView set");
     }
 
-    public void uploadValuesToFirebase(String sessionId, int avgValue, String waveName)
+    public void uploadValuesToFirebase(String sessionId, float avgValue, String waveName)
     {
         //Reference to root node:
+        Log.v("ConnectionActivity", "t1");
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        Log.v("ConnectionActivity", "t2");
         DatabaseReference firebaseRootReference = database.getReference("musefirebase-79096");
-
+        Log.v("ConnectionActivity", "t3");
         //Create new node for the current calibration session
-        DatabaseReference sessionReference = firebaseRootReference.child(sessionId);
+        DatabaseReference sessionReference = firebaseRootReference.child("Session-" + sessionId);
+        Log.v("ConnectionActivity", "t4");
         Date timeStamp = Calendar.getInstance().getTime();
-        sessionReference.setValue(timeStamp + " | " +  waveName, avgValue);
+        Log.v("ConnectionActivity", "t5");
+
+        //Create patch id:
+        SharedPreferences prefPatchId = getApplicationContext().getSharedPreferences("prefPatchId", 0); // 0 - for private mode
+        Log.v("ConnectionActivity", "t6");
+        String patchId = prefPatchId.getString("PatchId", "0");
+        Log.v("ConnectionActivity", "t7");
+        int intPatchId = Integer.parseInt(patchId);
+        Log.v("ConnectionActivity", "t8");
+        intPatchId += 1;
+        Log.v("ConnectionActivity", "t9");
+        patchId = Integer.toString(intPatchId);
+        Log.v("ConnectionActivity", "t10");
+        prefPatchId.edit().putString("PatchId", patchId).apply();
+        Log.v("ConnectionActivity", "t11");
+
+        sessionReference.child("Patch-" + patchId).setValue(avgValue);
         //Insert average value to this session:
         Log.v("ConnectionActivity", "Saved SessionId: " + sessionId);
         Log.v("ConnectionActivity", "Saved avgValue: " + avgValue);
         Log.v("ConnectionActivity", "Saved waveName: " + waveName);
+    }
+
+    public double convertNaNtoZero(double eeg)
+    {
+        double value = 0;
+        if(Double.isNaN(eeg))
+        {
+            return value;
+        }
+        else
+        {
+            return eeg;
+        }
     }
 
     public void uploadEEGValueToSharedRef(MuseDataPacket p, int timeRate, String waveName)
@@ -127,7 +163,15 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         double aux_l = p.getEegChannelValue(Eeg.AUX_LEFT);
         double aux_r = p.getEegChannelValue(Eeg.AUX_RIGHT);
 
+        //What to do with NaNs:
+        eeg1 = convertNaNtoZero(eeg1);
+        eeg2 = convertNaNtoZero(eeg2);
+        eeg3 = convertNaNtoZero(eeg3);
+        eeg4 = convertNaNtoZero(eeg4);
+
         double avgEEGValue = ((eeg1 + eeg2 + eeg3 + eeg4) / 4);
+        float avgEEGValueFloat = (float) avgEEGValue;
+        Log.v("ConnectionActivity", "avgEEGValueFloat: " + avgEEGValueFloat);
 
         eegSnapShotCounter += 1;
         Log.v("Timers", "eegSnapShotCounter: " + eegSnapShotCounter);
@@ -136,52 +180,63 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         SharedPreferences pref = getApplicationContext().getSharedPreferences("EegData", 0); // 0 - for private mode
         SharedPreferences.Editor editor = pref.edit();
 
+        SharedPreferences prefCalibrationMode = getApplicationContext().getSharedPreferences("prefCalibrationMode", 0); // 0 - for private mode
 
         //Muse eeg data is updated roughly 3 times every 1 millisecond. This is just an estimate without any specific calculations.
 
         if (eegSnapShotCounter == timeRate)
         {
-            eegSnapShotResetCounter =+ 1;
+            eegSnapShotCounter = 0;
+            eegSnapShotResetCounter += 1;
             Log.v("Timers", "eegSnapShotResetCounter: " + eegSnapShotResetCounter);
             //Add avg to list every 10th data packet.
-            avgs.add((int)avgEEGValue);
+
+            avgs.add((float)avgEEGValueFloat);
             if(eegSnapShotResetCounter == 5)
             {
-                //For every 50th data packet. (5*10) Get list average and update to Firebase
-                int tempValue = 0;
-                for (int i = 0; i < avgs.size(); i++) {
-                    System.out.println(avgs.get(i));
-                    int singleAvgValue = avgs.get(i);
-                    tempValue += singleAvgValue;
-
-                }
-                //UPDATE THIS TO FIREBASE HERE
-                int fireBaseUpdateValue = tempValue / avgs.size();
                 eegSnapShotResetCounter = 0;
 
-                //Check if the calibration Mode is on, if On, save data to firebase, if not, dont:
-                SharedPreferences prefCalibrationMode = getApplicationContext().getSharedPreferences("prefCalibrationMode", 0); // 0 - for private mode
-                String calibrationMode = prefCalibrationMode.getString("CalibrationMode", "0");
+                //Update avg patch to firebase
+
+                for (int i = 0; i < avgs.size(); i++) {
+
+                    float singleAvgValue = avgs.get(i);
+                    tempValue += singleAvgValue;
+                    Log.v("ConnectionActivity", "avgs.get(i): " + avgs.get(i));
+                    Log.v("ConnectionActivity", "len: " + avgs.size());
+                    Log.v("ConnectionActivity", "i: " + i);
+                    Log.v("ConnectionActivity", "singleAvgValue: " + singleAvgValue);
+                    Log.v("ConnectionActivity", "TempValue: " + tempValue);
+                    if(i == avgs.size() - 1)
+                    {
+                        Log.v("ConnectionActivity", "TempValue: " + tempValue);
+                        //UPDATE THIS TO FIREBASE HERE
+                        float fireBaseUpdateValue = tempValue / avgs.size();
+                        tempValue = 0;
+                        avgs = new ArrayList<>();
+                        Log.v("ConnectionActivity", "TempValue after zero: " + tempValue);
+                        //Check if the calibration Mode is on, if On, save data to firebase, if not, dont:
+                        String calibrationMode = prefCalibrationMode.getString("CalibrationMode", "0");
 
 
-                Log.v("ConnectionActivity", "CalibrationMode: " + calibrationMode);
-                Log.v("ConnectionActivity", "Saved AVG value: " + fireBaseUpdateValue);
-                if(calibrationMode.equals("1"))
-                {
-                    String sessionId = prefCalibrationMode.getString("sessionId", "0");
-                    Log.v("ConnectionActivity", "SessionId: " + sessionId);
-                    uploadValuesToFirebase(sessionId, fireBaseUpdateValue, waveName);
-                    Log.v("ConnectionActivity", "Uploaded to firebase!");
-                    //Upload to firebase
+                        Log.v("ConnectionActivity", "CalibrationMode: " + calibrationMode);
+                        Log.v("ConnectionActivity", "Saved AVG value: " + fireBaseUpdateValue);
+                        if(calibrationMode.equals("1"))
+                        {
+                            String sessionId = prefCalibrationMode.getString("SessionId", "0");
+                            Log.v("ConnectionActivity", "SessionId: " + sessionId);
+                            uploadValuesToFirebase(sessionId, fireBaseUpdateValue, waveName);
+                            Log.v("ConnectionActivity", "Uploaded to firebase!");
+                            //Upload to firebase
+                        }
+
+                        //After the update clean the phone memory (shared preference)
+                        Log.d(TAG2, "Data cleared");
+                        pref.edit().clear().apply();
+                    }
                 }
 
 
-
-
-
-                //After the update clean the phone memory (shared preference)
-                Log.d(TAG2, "Data cleared");
-                pref.edit().clear().apply();
 
             }
 
@@ -206,8 +261,6 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                         + " " + eeg4 + " " + aux_l + " " + aux_r);
             }
 
-            eegSnapShotCounter = 0;
-
             //Update EEG value to all activities it is used. Right now only shown in visual activity, and the data collections starts when the Muse is connected.
             //Check if VisualActivity exists (The activity is opened once)
             /*https://www.journaldev.com/9412/android-shared-preferences-example-tutorial*/
@@ -219,8 +272,6 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
             String eeg4String = Double.toString(eeg4);
             String aux_lString = Double.toString(aux_l);
             String aux_rString = Double.toString(aux_r);
-
-
 
             TextView eegTv1;
 
@@ -289,15 +340,17 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                 //case EEG:
                 //    uploadEEGValueToSharedRef(p, 500);
                 //    break;
-                //case ALPHA_RELATIVE:
-                //    String waveName = "AlphaRelative";
-                //    uploadEEGValueToSharedRef(p, 10, waveName);
-                //    break;
-
-                case ALPHA_ABSOLUTE:
-                    String waveName = "AlphaAbsolute";
-                    uploadEEGValueToSharedRef(p, 10, waveName);
+                case ALPHA_RELATIVE:
+                    String waveName = "AlphaRelative";
+                    int timeRate = 5;
+                    uploadEEGValueToSharedRef(p, timeRate, waveName);
                     break;
+
+                //case ALPHA_ABSOLUTE:
+                //    String waveName = "AlphaAbsolute";
+
+                //uploadEEGValueToSharedRef(p, 5, waveName);
+                //   break;
 
                 default:
                     break;

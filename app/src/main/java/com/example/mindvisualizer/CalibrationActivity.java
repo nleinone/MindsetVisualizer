@@ -1,6 +1,8 @@
 package com.example.mindvisualizer;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -10,12 +12,16 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Handler;
 
+import com.google.firebase.database.core.view.Change;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class CalibrationActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -23,6 +29,8 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
     private AlertDialog successBox;
     List<String> dataBundleArray = new ArrayList<String>();
     private final String TAG = "CalibrationActivity";
+    String workTag = "CalibrationSession";
+
 
     protected AlertDialog createAlertBoxWithButton(int calibSuccessT, int calibSuccessM)
     {
@@ -59,17 +67,14 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
 
     public void updateEEGTextViews()
     {
+        Log.v("CalibrationActivity", "Data received.");
+        /*
         SharedPreferences pref = getApplicationContext().getSharedPreferences("EegData", 0); // 0 - for private mode
 
         String eeg1 = pref.getString("eeg1String", null); // getting eeg1 from shared preference
         String eeg2 = pref.getString("eeg2String", null); // getting eeg2 from shared preference
         String eeg3 = pref.getString("eeg3String", null); // getting eeg3 from shared preference
         String eeg4 = pref.getString("eeg4String", null); // getting eeg4 from shared preference
-
-        TextView eegTv1 = findViewById(R.id.eegChannel1Out);
-        TextView eegtv2 = findViewById(R.id.eegChannel2Out);
-        TextView eegtv3 = findViewById(R.id.eegChannel3Out);
-        TextView eegtv4 = findViewById(R.id.eegChannel4Out);
 
         UpdateTextViewValue(eeg1, eegTv1);
         UpdateTextViewValue(eeg2, eegtv2);
@@ -78,8 +83,7 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
 
         //Transform the raw EEG data to frequency:
         //fastFourierTransform(eeg1);
-
-
+        */
     }
 
     public void updateUI()
@@ -90,7 +94,7 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
             @Override
             public void run() {
                 /* do what you need to do */
-                Log.d(TAG, "UI updated");
+                //Log.d(TAG, "UI updated");
 
                 updateEEGTextViews();
                 /* and here comes the "trick" */
@@ -106,7 +110,6 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calibration);
         findViewById(R.id.start_calib).setOnClickListener(CalibrationActivity.this);
-        findViewById(R.id.return_prev).setOnClickListener(CalibrationActivity.this);
 
         //Get eeg data
 
@@ -117,7 +120,41 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onClick(View v) {
 
+        SharedPreferences prefCalibrationMode = getApplicationContext().getSharedPreferences("prefCalibrationMode", 0); // 0 - for private mode
+
         if (v.getId() == R.id.start_calib) {
+
+            Log.v("CalibrationActivity", "Calibration started");
+            //Increase sessionId by 1
+            String sessionId = prefCalibrationMode.getString("SessionId", "0");
+            int intSessionId = Integer.parseInt(sessionId);
+            intSessionId += 1;
+            sessionId = Integer.toString(intSessionId);
+            prefCalibrationMode.edit().putString("SessionId", sessionId).apply();
+
+            //Change calibration mode on (1 = True, 0 = False:
+            String calibMode = "1";
+            prefCalibrationMode.edit().putString("CalibrationMode", calibMode).apply();
+
+            Log.v("CalibrationActivity", "CalibrationMode changed: " + calibMode);
+            EditText durationOfCalibrationET = findViewById(R.id.calibDurationEditText);
+
+            int durationOfCalibration = 30;
+
+            if (!durationOfCalibrationET.getText().toString().equals(""))
+            {
+                durationOfCalibration = Integer.parseInt(durationOfCalibrationET.getText().toString());
+                Log.v("CalibrationActivity", "Duration set to: " + durationOfCalibration);
+            }
+
+            //The workManager will turn the calibration mode 0 after the duration of the Calibration
+            OneTimeWorkRequest calibrationWork = new OneTimeWorkRequest.Builder(WorkerClass.class)
+                    .setInitialDelay(durationOfCalibration, TimeUnit.MILLISECONDS)
+                    .addTag(workTag + sessionId)
+                    .build();
+
+            WorkManager.getInstance().enqueue(calibrationWork);
+            Log.v("CalibrationActivity", "Work queued: " + workTag + sessionId);
             // The user has pressed the "Start calibration" button.
             /*
              * code supposed to calibrate the headband.
@@ -139,6 +176,7 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
             //
 
         }
+        /*
         if (v.getId() == R.id.return_prev) {
             //if(calibrated) { //might not need this condition in the final code because the user might have a malfunctioning headband, therefore wanting to disconnect from this one and connect to another one
                 Intent i = new Intent(CalibrationActivity.this, ConnectionActivity.class);
@@ -146,6 +184,8 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
                 startActivity(i);
             //}
         }
+        */
+
     }
 
 }

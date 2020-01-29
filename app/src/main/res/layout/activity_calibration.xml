@@ -30,63 +30,15 @@
             android:layout_weight="1"
             android:text="@string/xml_start_calib" />
 
-        <Button
-            android:id="@+id/return_prev"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:layout_weight="1"
-            android:text="@string/return_prev" />
-
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/eegChannel1"
-        android:layout_width="138dp"
+    <EditText
+        android:id="@+id/calibDurationEditText"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/eegString1" />
-
-    <TextView
-        android:id="@+id/eegChannel1Out"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/eegString1Out" />
-
-    <TextView
-        android:id="@+id/eegChannel2"
-        android:layout_width="139dp"
-        android:layout_height="wrap_content"
-        android:text="@string/eegString2" />
-
-    <TextView
-        android:id="@+id/eegChannel2Out"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/eegString2Out" />
-
-    <TextView
-        android:id="@+id/eegChannel3"
-        android:layout_width="139dp"
-        android:layout_height="wrap_content"
-        android:text="@string/eegString3" />
-
-    <TextView
-        android:id="@+id/eegChannel3Out"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/eegString3Out" />
-
-    <TextView
-        android:id="@+id/eegChannel4"
-        android:layout_width="140dp"
-        android:layout_height="wrap_content"
-        android:text="@string/eegString4" />
-
-    <TextView
-        android:id="@+id/eegChannel4Out"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/eegString4Out" />
+        android:ems="10"
+        android:hint="Calibration Duration"
+        android:inputType="number" />
 
 
 </LinearLayout>

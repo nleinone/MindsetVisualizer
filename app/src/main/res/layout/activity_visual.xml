@@ -1,42 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".VisualActivity">
+    tools:context=".VisualActivity"
+    android:id="@+id/Layout">
 
     <TextView
-        android:id="@+id/picture1"
+        android:id="@+id/displayThreshold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="picture1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="124dp"
+        android:layout_marginLeft="124dp"
+        android:layout_marginTop="362dp"
+        android:layout_marginEnd="223dp"
+        android:layout_marginRight="223dp"
+        android:layout_marginBottom="350dp" />
 
     <TextView
-        android:id="@+id/avgEEGTitleConn"
+        android:id="@+id/displayCurrentEEG"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Average EEG:"
-        app:layout_constraintBottom_toTopOf="@+id/picture1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.048"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.498" />
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="124dp"
+        android:layout_marginLeft="124dp"
+        android:layout_marginTop="385dp"
+        android:layout_marginEnd="223dp"
+        android:layout_marginRight="223dp"
+        android:layout_marginBottom="327dp" />
 
     <TextView
-        android:id="@+id/avgEEGTextConn"
-        android:layout_width="wrap_content"
+        android:id="@+id/thresholdTitle"
+        android:layout_width="145dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="240dp"
-        android:layout_marginRight="240dp"
-        android:text="0"
-        app:layout_constraintBottom_toTopOf="@+id/picture1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.498" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="362dp"
+        android:layout_marginEnd="266dp"
+        android:layout_marginRight="266dp"
+        android:layout_marginBottom="351dp"
+        android:text="Your average EEG:" />
+
+    <TextView
+        android:id="@+id/currentVisualTitle"
+        android:layout_width="145dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="383dp"
+        android:layout_marginEnd="266dp"
+        android:layout_marginRight="266dp"
+        android:layout_marginBottom="329dp"
+        android:text="Your current EEG:" />
+</RelativeLayout>

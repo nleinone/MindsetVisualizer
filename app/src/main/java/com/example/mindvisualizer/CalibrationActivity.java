@@ -5,6 +5,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -25,14 +26,9 @@ import java.util.concurrent.TimeUnit;
 
 public class CalibrationActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private boolean calibrated = false;
-
     List<String> dataBundleArray = new ArrayList<String>();
     private final String TAG = "CalibrationActivity";
     String workTag = "CalibrationSession";
-
-
-
 
     public void UpdateTextViewValue(String text, TextView tv)
     {
@@ -94,16 +90,45 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.activity_calibration);
         findViewById(R.id.start_calib).setOnClickListener(CalibrationActivity.this);
 
-        //Get eeg data
+        SharedPreferences prefCalibrationMode = getApplicationContext().getSharedPreferences("prefCalibrationMode", 0); // 0 - for private mode
 
-        //Update UI:
+        //Add Shared preference key to the listener list
+        prefCalibrationMode.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener);
 
     }
+
+    //Do stuff when key is changed
+    SharedPreferences.OnSharedPreferenceChangeListener sharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            if (key.equals("CalibrationMode")){
+
+                TextView statusTv = findViewById(R.id.status);
+
+                String value = sharedPreferences.getString(key, "nothing");
+                if(value.equals("0"))
+                {
+                    statusTv.setText(R.string.xml_calib);
+                }
+                else if(value.equals("1"))
+                {
+                    statusTv.setText(R.string.calibrating);
+                }
+                else
+                {
+                    statusTv.setText(R.string.calibSuccessM);
+                    Intent intent = new Intent(CalibrationActivity.this , VisualActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        }
+    };
 
     @Override
     public void onClick(View v) {
 
-        SharedPreferences prefCalibrationMode = getApplicationContext().getSharedPreferences("prefCalibrationMode", 0); // 0 - for private mode
+        SharedPreferences prefCalibrationMode = getApplicationContext().getSharedPreferences("prefCalibrationMode", 0);
         Log.v("CalibrationActivity", "Click");
         if (v.getId() == R.id.start_calib) {
 
@@ -115,7 +140,7 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
             sessionId = Integer.toString(intSessionId);
             prefCalibrationMode.edit().putString("SessionId", sessionId).apply();
 
-            //Change calibration mode on (1 = True, 0 = False:
+            //Change calibration mode on (1 = True, 0 = False, Visualization mode = 2:
             String calibMode = "1";
             prefCalibrationMode.edit().putString("CalibrationMode", calibMode).apply();
 
@@ -130,7 +155,7 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
                 Log.v("CalibrationActivity", "Duration set to: " + durationOfCalibration);
             }
 
-            //The workManager will turn the calibration mode 0 after the duration of the Calibration
+            //The workManager will turn the calibration mode 2 after the duration of the Calibration
             OneTimeWorkRequest calibrationWork = new OneTimeWorkRequest.Builder(WorkerClass.class)
                     .setInitialDelay(durationOfCalibration, TimeUnit.MILLISECONDS)
                     .addTag(workTag + sessionId)
@@ -138,34 +163,8 @@ public class CalibrationActivity extends AppCompatActivity implements View.OnCli
 
             WorkManager.getInstance(this).enqueue(calibrationWork);
             Log.v("CalibrationActivity", "Work queued: " + workTag + sessionId);
-            // The user has pressed the "Start calibration" button.
-            /*
-             * code supposed to calibrate the headband.
-             * if successful, will return calibrated = true
-             * for the moment, we put it to true, in order to design the basic layers of the app
-             */
-
-            //Update EEG textviews every 5 seconds:
             updateUI();
-
-
-            //Collect EEG data to a data bundle. Needs a function which takes an instance of shared preference and appends a list with it. TODO
-            //dataBundleArray = createDataBundleArray();
-
-            //Update Firebase database with dataBundleArray. This works as a backup for the eeg data in case the muse disconnects.. TODO
-            //
-
         }
-        /*
-        if (v.getId() == R.id.return_prev) {
-            //if(calibrated) { //might not need this condition in the final code because the user might have a malfunctioning headband, therefore wanting to disconnect from this one and connect to another one
-                Intent i = new Intent(CalibrationActivity.this, ConnectionActivity.class);
-                i.putExtra("calib", calibrated);
-                startActivity(i);
-            //}
-        }
-        */
-
     }
 
 }

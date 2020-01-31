@@ -113,8 +113,6 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         //Create new node for the current calibration session
         DatabaseReference sessionReference = firebaseRootReference.child("Session-" + sessionId);
         Log.v("ConnectionActivity", "t4");
-        Date timeStamp = Calendar.getInstance().getTime();
-        Log.v("ConnectionActivity", "t5");
 
         //Create patch id:
         SharedPreferences prefPatchId = getApplicationContext().getSharedPreferences("prefPatchId", 0); // 0 - for private mode
@@ -190,11 +188,15 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
             eegSnapShotResetCounter += 1;
             Log.v("Timers", "eegSnapShotResetCounter: " + eegSnapShotResetCounter);
             //Add avg to list every 10th data packet.
+            SharedPreferences prefEeg = getApplicationContext().getSharedPreferences("avgEEG", 0);
+            prefEeg.edit().putFloat("averageEEG", avgEEGValueFloat).apply();
 
             avgs.add((float)avgEEGValueFloat);
             if(eegSnapShotResetCounter == 5)
             {
                 eegSnapShotResetCounter = 0;
+
+                //Update eeg to sharedPreference:
 
                 //Update avg patch to firebase
 

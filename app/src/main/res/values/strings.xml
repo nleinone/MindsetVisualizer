@@ -19,6 +19,9 @@
     <string name="toast_start_exception_not_ca">You have to calibrate your Muse headband!</string>
 
     <string name="calibSuccessT">Calibration complete!</string>
+    <string name="calibrating">Calibrating...</string>
+
+
     <string name="calibSuccessM">You can now start visualising your mindset, if you wish!</string>
     <string name="ok">OK</string>
 

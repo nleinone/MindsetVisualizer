@@ -1,5 +1,6 @@
 package com.example.mindvisualizer;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -8,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.Log;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -28,7 +30,7 @@ public class WorkerClass extends Worker {
     public Result doWork() {
 
         Log.v("Worker", "Work started!");
-        String calibrationMode = "0";
+        String calibrationMode = "2"; //Visualization mode
         setCalibrationMode(calibrationMode);
         // Indicate whether the task finished successfully with the Result
         return Result.success();

@@ -8,64 +8,36 @@
     android:id="@+id/Layout">
 
     <TextView
-        android:id="@+id/displayThreshold"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="124dp"
-        android:layout_marginLeft="124dp"
-        android:layout_marginTop="362dp"
-        android:layout_marginEnd="223dp"
-        android:layout_marginRight="223dp"
-        android:layout_marginBottom="350dp" />
-
-    <TextView
-        android:id="@+id/displayCurrentEEG"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="124dp"
-        android:layout_marginLeft="124dp"
-        android:layout_marginTop="385dp"
-        android:layout_marginEnd="223dp"
-        android:layout_marginRight="223dp"
-        android:layout_marginBottom="327dp" />
-
-    <TextView
         android:id="@+id/thresholdTitle"
-        android:layout_width="145dp"
+        android:layout_centerVertical="true"
+        android:layout_width="125dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="362dp"
-        android:layout_marginEnd="266dp"
-        android:layout_marginRight="266dp"
-        android:layout_marginBottom="351dp"
         android:text="Your average EEG:" />
 
     <TextView
         android:id="@+id/currentVisualTitle"
-        android:layout_width="145dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="383dp"
-        android:layout_marginEnd="266dp"
-        android:layout_marginRight="266dp"
-        android:layout_marginBottom="329dp"
+        android:layout_below="@id/thresholdTitle"
         android:text="Your current EEG:" />
+
+    <TextView
+        android:id="@+id/displayThreshold"
+        android:layout_centerVertical="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/thresholdTitle"
+        android:text="Thresshold value" />
+
+    <TextView
+        android:id="@+id/displayCurrentEEG"
+        android:layout_centerVertical="true"
+        android:layout_below="@id/thresholdTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/thresholdTitle"
+        android:text="Thresshold current value" />
+
 </RelativeLayout>

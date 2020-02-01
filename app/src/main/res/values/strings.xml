@@ -6,7 +6,7 @@
     <string name="pause">Pause / Resume</string>
     <string name="disconnect">Disconnect</string>
     <string name="calib">Calibration</string>
-    <string name="start">Start</string>
+    <string name="start">Visualization</string>
 
     <string name="disconnected">DISCONNECTED</string>
     <string name="xml_calib">First, we need to calibrate your Muse headband.</string>

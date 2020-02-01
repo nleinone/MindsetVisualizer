@@ -96,27 +96,9 @@
         android:text="avgerage EEG:" />
 
     <TextView
-        android:id="@+id/avgEEGTextConn"
-        android:layout_width="197dp"
-        android:layout_height="wrap_content"
-        android:text="0" />
-
-    <TextView
         android:id="@+id/avgAlpha1"
         android:layout_width="195dp"
         android:layout_height="wrap_content"
         android:text="@string/avgAlpha1" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="194dp"
-        android:layout_height="wrap_content"
-        android:text="@string/avgAlpha1Out" />
-
-    <TextView
-        android:id="@+id/avgAbsAlpha1"
-        android:layout_width="192dp"
-        android:layout_height="wrap_content"
-        android:text="@string/avgAbsAlpha1Out" />
 
 </LinearLayout>

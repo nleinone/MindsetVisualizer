@@ -19,22 +19,20 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class VisualActivity extends AppCompatActivity {
 
     private static final String TAG = "VisualActivity";
 
-    public ArrayList<String> loadDataFromFirebase(String sessionId)
+    public float loadDataFromFirebase(String sessionId)
     {
         Log.v("VisualActivity","load 1");
         //Get firebase database reference:
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference firebaseRootReference = database.getReference("musefirebase-79096");
         DatabaseReference sessionReference = firebaseRootReference.child("Session-" + sessionId);
-
         Log.v("VisualActivity","load 2");
-
-        ArrayList<String> dataList = new ArrayList<>();
         sessionReference.addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
@@ -43,31 +41,45 @@ public class VisualActivity extends AppCompatActivity {
                         ArrayList<String> dataList = new ArrayList<>();
                         // Result will be holded Here
                         for (DataSnapshot dsp : dataSnapshot.getChildren()) {
+                            String strValue = String.valueOf(dsp.getValue());
                             Log.v("VisualActivity", "eegValue: " + dsp.getValue());
+                            Log.v("VisualActivity", "eegValueStr: " + strValue);
+
                             dataList.add(String.valueOf(dsp.getValue())); //add result into array list
 
                         }
+                        int len = dataList.size();
+                        Log.v("VisualActivity", "lenDataList func: " + len);
                         Log.v("VisualActivity","load 3");
+
+                        SharedPreferences prefsAvg = getApplicationContext().getSharedPreferences("prefsAvg", 0);
+                        float avgEEG = getAvg(dataList);
+                        prefsAvg.edit().putString("avgEEG", String.valueOf(avgEEG)).apply();
                     }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
                         //handle databaseError
                         Log.v("VisualActivity", "Error in handling Firebase data");
-
                     }
                 });
-        Log.v("VisualActivity","load 4");
-        return dataList;
+        SharedPreferences prefsAvg = getApplicationContext().getSharedPreferences("prefsAvg", 0);
+        String avgEEG = prefsAvg.getString("avgEEG", "");
+        float avgEEGFloat = Float.parseFloat(avgEEG);
+        Log.v("VisualActivity", "Load function result: " + avgEEGFloat);
+        return avgEEGFloat;
     }
 
     private float getAvg(ArrayList<String> dataList)
     {
         float avgEEG = 0;
         float floatNum = 0;
+
         for (String i : dataList)
             floatNum = Float.parseFloat(i);
             avgEEG = avgEEG + floatNum;
+            String stringEEG = String.valueOf(floatNum);
+            Log.v("getAvg", "avgEEGString: " + stringEEG);
 
         return avgEEG;
     }
@@ -81,10 +93,10 @@ public class VisualActivity extends AppCompatActivity {
 
         if(calibMode.equals("2"))
         {
-            ArrayList<String> dataList = new ArrayList<>();
-            dataList = loadDataFromFirebase(sessionId);
-            float avgEEG = getAvg(dataList);
+            float avgEEG = loadDataFromFirebase(sessionId);
+
             String avgEEGString = String.valueOf(avgEEG);
+            Log.v("VisualActivity", "avgEEGString: " + avgEEGString);
             SharedPreferences prefEeg = getApplicationContext().getSharedPreferences("avgEEG", 0);
             prefEeg.registerOnSharedPreferenceChangeListener(sharedPreferenceChangeListener);
 
@@ -97,26 +109,48 @@ public class VisualActivity extends AppCompatActivity {
             RelativeLayout RL;
             RL = (RelativeLayout)findViewById(R.id.Layout);
 
+            //https://htmlcolorcodes.com/
+            //https://www.betterhelp.com/advice/general/what-are-alpha-brain-waves/
 
-            if(color_change_variable <= avgEEG) {
+            int direction = -1;
 
-                RL.setBackgroundColor(Color.parseColor("#99CCFF"));
+            if(color_change_variable >= avgEEG) {
+
+                RL.setBackgroundColor(Color.parseColor("#69FF40"));
             }
-            else if(color_change_variable <= avgEEG + 0.05){
-                RL.setBackgroundColor(Color.parseColor("#6666FF"));
+            else if(color_change_variable >= avgEEG + (avgEEG * 0.10) * (direction)){
+                RL.setBackgroundColor(Color.parseColor("#8FFF40"));
             }
-            else if(color_change_variable <= avgEEG + 0.10){
-                RL.setBackgroundColor(Color.parseColor("#9933FF"));
+            else if(color_change_variable >= avgEEG + (avgEEG * 0.15) * (direction)){
+                RL.setBackgroundColor(Color.parseColor("#A9FF40") );
             }
-            else if(color_change_variable <= avgEEG + 0.15){
-                RL.setBackgroundColor(Color.parseColor("#FF00FF"));
+            else if(color_change_variable >= avgEEG + (avgEEG * 0.20) * (direction)){
+                RL.setBackgroundColor(Color.parseColor("#C6FF40"));
             }
-            else if(color_change_variable <= avgEEG + 0.20){
-                RL.setBackgroundColor(Color.parseColor("#CC0066"));
+            else if(color_change_variable >= avgEEG + (avgEEG * 0.25) * (direction)){
+                RL.setBackgroundColor(Color.parseColor("#E3FF40"));
+            }
+            else if(color_change_variable >= avgEEG + (avgEEG * 0.30) * (direction)){
+                RL.setBackgroundColor(Color.parseColor("#FFFC40"));
+            }
+            else if(color_change_variable >= avgEEG + (avgEEG * 0.35) * (direction)){
+                RL.setBackgroundColor(Color.parseColor("#FFDC40"));
+            }
+            else if(color_change_variable >= avgEEG + (avgEEG * 0.40) * (direction)){
+                RL.setBackgroundColor(Color.parseColor("#FFBF40"));
+            }
+            else if(color_change_variable >= avgEEG + (avgEEG * 0.45) * (direction)){
+                RL.setBackgroundColor(Color.parseColor("#FF9940"));
+            }
+            else if(color_change_variable >= avgEEG + (avgEEG * 0.50) * (direction)){
+                RL.setBackgroundColor(Color.parseColor("#FF7440"));
+            }
+            else if(color_change_variable >= avgEEG + (avgEEG * 0.55) * (direction)){
+                RL.setBackgroundColor(Color.parseColor("#FF5D40"));
             }
             else
             {
-                RL.setBackgroundColor(Color.parseColor("#FF0000"));
+                RL.setBackgroundColor(Color.parseColor("#FF4040"));
             }
         }
     }

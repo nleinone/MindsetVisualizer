@@ -290,6 +290,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                 editor.putString("avgEegAlphaString", avgEEGValueString); // Storing string
 
                 eegTv1 = findViewById(R.id.avgAlpha1);
+                UpdateTextViewValue(avgEEGValueString, eegTv1);
             }
 
             else if(p.packetType() == MuseDataPacketType.ALPHA_ABSOLUTE)
@@ -302,7 +303,6 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                 editor.putString("aux_lAbsAlphaString", aux_lString); // Storing string
                 editor.putString("aux_rAbsAlphaString", aux_rString); // Storing string
                 editor.putString("avgEegAlphaString", avgEEGValueString); // Storing string
-                eegTv1 = findViewById(R.id.avgAbsAlpha1);
             }
             else
             {
@@ -313,14 +313,13 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                 editor.putString("eeg4String", eeg4String); // Storing string
                 editor.putString("aux_lString", aux_lString); // Storing string
                 editor.putString("aux_rString", aux_rString); // Storing string
-                eegTv1 = findViewById(R.id.avgEEGTextConn);
             }
 
             editor.commit();
 
             //Upload shared preferences
 
-            UpdateTextViewValue(avgEEGValueString, eegTv1);
+
 
         }
     }
@@ -410,7 +409,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
         findViewById(R.id.scan).setOnClickListener(this);
         findViewById(R.id.connect).setOnClickListener(this);
         findViewById(R.id.disconnect).setOnClickListener(this);
-        //findViewById(R.id.pause).setOnClickListener(this);
+        findViewById(R.id.pause).setOnClickListener(this);
         findViewById(R.id.calib).setOnClickListener(this);
         findViewById(R.id.start).setOnClickListener(this);
 
@@ -473,6 +472,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
             // Disconnect from the selected Muse.
             if (muse != null) {
                 muse.disconnect();
+                spinnerAdapter.clear();
             } else {
                 Toast.makeText(getApplicationContext(), R.string.toast_disconnect_exception, Toast.LENGTH_SHORT).show();
             }
@@ -609,6 +609,7 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                 Log.d(TAG1, "Muse disconnected:" + muse.getName());
                 // We have disconnected from the headband, so set our cached copy to null.
                 ConnectionActivity.this.muse = null;
+                spinnerAdapter.clear();
             }
         }
     };

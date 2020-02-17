@@ -348,7 +348,10 @@ public class ConnectionActivity extends AppCompatActivity implements View.OnClic
                     break;
 
                 //case ALPHA_ABSOLUTE:
-                //    String waveName = "AlphaAbsolute";
+                //    String waveName = "AlphaRelative";
+                //    int timeRate = 5;
+                //    uploadEEGValueToSharedRef(p, timeRate, waveName);
+                //    break;
 
                 //uploadEEGValueToSharedRef(p, 5, waveName);
                 //   break;

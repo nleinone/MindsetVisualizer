@@ -10,11 +10,7 @@ version 6 or higher.
 The application, named as MindVisualizer, consists of 4 individual activities:
 StartActivity, ConnectionActivity, CalibrationActivity, and VisualActivity. The
 application also includes a class for the WorkManager Worker, which controls the
-colour changing of the screen, and Firebase Realtime database. The following figure
-shows the navigation between different activities, as well as the functional connection
-between the Firebase Realtime database, and WorkManager Worker class. Activities
-which heavily utilize the functions and features provided with the Muse SDK library
-are marked inside the "Muse SDK" square.
+colour changing of the screen, and Firebase Realtime database. The application visualizes the users EEG data (provided by the Muse Wearable headband) with changing screen colours. It also calculates the average alphawave EEG value for the calibration session.  
 
 4.1.1. StartActivity  
 

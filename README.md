@@ -15,11 +15,7 @@ colour changing of the screen, and Firebase Realtime database. The application v
 4.1.1. StartActivity  
 
 The StartActivity acts as a entry point for the user, as it is the first screen shown when
-launching the application. The original design included a tutorial for the user, but
-since the research scope was narrowed down and the test user’s consists mainly expert
-users due to corona virus outbreak, time constraints, and focusing of the evaluation,
-additional tutorial activity were excluded. Guides how to use the app can be found in
-this documentation, as well as the application readme file.  
+launching the application.
 
 4.1.2. ConnectionActivity  
 
@@ -27,11 +23,7 @@ ConnectionActivity consists of all the necessary functions for the user’s to s
 the reachable Muse device, connect or disconnect the mobile device to/from the Muse
 device and navigate to the CalibrationActivity or visualization activity. When the User
 connects to the Muse Device, the data is sent to the mobile device and converted to
-readable form. However, this data stream is only used in the observation of the stability
-of the data link, and not saved in the database. By default, Muse Wearable headband
-streams the EEG data every 0.3 seconds, which is slowed down to about 1 second by
-the application inner parameters. This is done to reduce the traffic and pressure on the
-phone and make the Firebase data push more stable.
+readable form.
 
 4.1.3. CalibrationActivity  
 
